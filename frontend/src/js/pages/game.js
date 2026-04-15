@@ -14,13 +14,13 @@ const ws = new WSClient();
 const chat = new Chat('chat-msgs', 'chat-inp', ws);
 
 // ── Canvas setup ──────────────────────────────────────────
-const GAME_W = 272, GAME_H = 480;
+let GAME_W = 272, GAME_H = 480;
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
+let _scale = 1;
+
 canvas.width = GAME_W;
 canvas.height = GAME_H;
-
-let _scale = 1;
 function resize() {
   const container = document.getElementById('canvas-wrap');
   const maxW = container.clientWidth - 4; // padding
