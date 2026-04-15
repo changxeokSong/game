@@ -55,7 +55,7 @@ function renderOverview() {
   ];
   const grid = document.getElementById('stat-grid');
   grid.innerHTML = stats.map(s => `
-    <div class="stat-card card">
+    <div class="stat-card card clickable">
       <div class="stat-value">${s.value}</div>
       <div class="stat-label">${s.label}</div>
     </div>

@@ -11,9 +11,7 @@ function register(router, ctx) {
     const text = sanitize(msg.msg).trim();
     if (!text) return;
     const entry = await chatSvc.add(info.username, text, info.room);
-    // Broadcast to everyone in the same room
-    for (const [w, c] of clients)
-      if (c.room === info.room) bc.send(w, { type: 'chat', ...entry });
+    // Note: Global broadcast is handled via Redis Pub/Sub in index.js
   });
 }
 

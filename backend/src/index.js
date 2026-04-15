@@ -46,6 +46,23 @@ async function main() {
   server.setContext(ctx);
   await server.listen();
 
+  // ── Pub/Sub for Server Scale ──────────────────────────────
+  const { sub } = require('./db/redis');
+  sub.subscribe('chat_global', (err) => {
+    if (err) console.error('[PubSub] Failed to subscribe', err);
+  });
+  sub.on('message', (channel, message) => {
+    if (channel === 'chat_global') {
+      const parsed = JSON.parse(message);
+      // Broadcast this message locally to all connected clients in the same room.
+      if (parsed.room === 'lobby') {
+        bc.bcastLobby({ type: 'chat', ...parsed });
+      } else {
+        bc.bcastRoom(parsed.room, { type: 'chat', ...parsed });
+      }
+    }
+  });
+
   console.log(`[App] ready  (TICK=${Math.round(1000 / TICK_MS)}fps)`);
 }
 

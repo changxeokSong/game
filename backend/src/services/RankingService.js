@@ -1,5 +1,5 @@
 'use strict';
-const redis = require('../db/redis');
+const { redis } = require('../db/redis');
 
 const rankKey = gameId      => `rankings:${gameId}`;
 const statKey = (name, gid) => `usergame:${name}:${gid}`;

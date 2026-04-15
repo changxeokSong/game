@@ -11,7 +11,7 @@ const ws = new WSClient();
 const chat = new Chat('chat-msgs', 'chat-inp', ws);
 
 // ── Canvas setup ──────────────────────────────────────────
-const GAME_W = 480, GAME_H = 272;
+const GAME_W = 272, GAME_H = 480;
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
 canvas.width = GAME_W;
@@ -35,8 +35,8 @@ let state = null;
 let gamePhase = 'connecting';
 let playerNames = ['P1', 'P2'];
 
-const AH = { PR: 14, PAR: 28, GH: 120, GY: (272 - 120) / 2 };
-const PG = { BR: 10, PW: 12, PH: 72 };
+const AH = { PR: 14, PAR: 28, GW: 120, GX: (272 - 120) / 2 };
+const PG = { BR: 10, PW: 72, PH: 12 };
 
 // ── DOM Refs ──────────────────────────────────────────────
 const badgeEl = document.getElementById('status-badge');
@@ -199,11 +199,11 @@ function drawAirHockey(s) {
   ctx.fillStyle = '#0b1a30'; ctx.fillRect(0, 0, W, H);
 
   // Goals
-  ctx.strokeStyle = '#ff6b6b'; ctx.lineWidth = 2; ctx.strokeRect(0, AH.GY, 10, AH.GH);
-  ctx.strokeStyle = '#4ecdc4'; ctx.strokeRect(W - 10, AH.GY, 10, AH.GH);
+  ctx.strokeStyle = '#ff6b6b'; ctx.lineWidth = 2; ctx.strokeRect(AH.GX, 0, AH.GW, 10);
+  ctx.strokeStyle = '#4ecdc4'; ctx.strokeRect(AH.GX, H - 10, AH.GW, 10);
 
   // Middle
-  ctx.strokeStyle = 'rgba(255,255,255,.1)'; ctx.beginPath(); ctx.moveTo(W/2, 0); ctx.lineTo(W/2, H); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,.1)'; ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
 
   // Paddles
   drawCircle(s.paddles[0].x, s.paddles[0].y, AH.PAR, '#ff6b6b');
@@ -215,7 +215,7 @@ function drawAirHockey(s) {
 function drawPong(s) {
   const W = GAME_W, H = GAME_H;
   ctx.fillStyle = '#050510'; ctx.fillRect(0, 0, W, H);
-  ctx.strokeStyle = 'rgba(255,255,255,.1)'; ctx.beginPath(); ctx.moveTo(W/2, 0); ctx.lineTo(W/2, H); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,.1)'; ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
 
   // Paddles
   ctx.fillStyle = '#ff6b6b'; ctx.fillRect(s.paddles[0].x - PG.PW/2, s.paddles[0].y - PG.PH/2, PG.PW, PG.PH);

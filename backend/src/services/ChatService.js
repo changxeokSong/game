@@ -1,5 +1,5 @@
 'use strict';
-const redis = require('../db/redis');
+const { redis, pub } = require('../db/redis');
 const { now } = require('../utils/helpers');
 const { MAX_CHAT } = require('../config');
 
@@ -9,6 +9,7 @@ async function add(username, msg, room) {
   const entry = { username, msg, room, ts: now() };
   await redis.lpush(CHAT_KEY, JSON.stringify(entry));
   await redis.ltrim(CHAT_KEY, 0, MAX_CHAT - 1);
+  await pub.publish('chat_global', JSON.stringify(entry));
   return entry;
 }
 

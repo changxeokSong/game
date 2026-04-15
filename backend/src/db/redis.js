@@ -8,7 +8,10 @@ const redis = new Redis(REDIS_URL, {
   enableReadyCheck: true,
 });
 
+const pub = new Redis(REDIS_URL);
+const sub = new Redis(REDIS_URL);
+
 redis.on('connect', () => console.log('[Redis] connected'));
 redis.on('error',   err => console.error('[Redis]', err.message));
 
-module.exports = redis;
+module.exports = { redis, pub, sub };

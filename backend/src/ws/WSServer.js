@@ -50,6 +50,13 @@ class WSServer {
     this.clients.set(ws, { username: null, room: 'lobby', isAdmin: false, ip, joinedAt: now() });
 
     ws.on('message', async raw => {
+      // 1. Rate Limit check (max 50 msgs / sec per IP)
+      const isAllowed = await require('./RateLimitMiddleware').rateLimit(ip, 50, 1);
+      if (!isAllowed) {
+        // Drop the message if rate limit exceeded
+        return;
+      }
+
       let msg;
       try { msg = JSON.parse(raw); } catch { return; }
       await this.router.dispatch(ws, msg, this._ctx);

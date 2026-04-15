@@ -3,14 +3,14 @@
   flex-direction: column;
   gap: 16px;
   padding: 12px;
-  max-width: 520px;
+  max-width: 380px;
   margin: 0 auto;
 }
 
 .canvas-wrap {
   position: relative;
   width: 100%;
-  aspect-ratio: 480 / 272;
+  aspect-ratio: 272 / 480;
   background: #000;
   border: 2px solid var(--border);
   border-radius: var(--radius);

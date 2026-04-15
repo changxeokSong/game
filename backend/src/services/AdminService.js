@@ -1,5 +1,5 @@
 'use strict';
-const redis = require('../db/redis');
+const { redis } = require('../db/redis');
 const { genToken, now } = require('../utils/helpers');
 const { ADMIN_TOKEN_TTL, MAX_ADMIN_LOGS } = require('../config');
 
@@ -14,9 +14,7 @@ async function issueToken(username) {
 
 async function validateToken(token) {
   const k        = TOK_KEY(token);
-  const username = await redis.get(k);
-  if (username) await redis.del(k);
-  return username;   // null when not found / expired
+  return await redis.get(k);   // null when not found / expired
 }
 
 async function log(action, by, extra = {}) {

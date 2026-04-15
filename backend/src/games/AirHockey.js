@@ -1,24 +1,24 @@
 'use strict';
 const { clamp } = require('../utils/helpers');
 
-/** Air Hockey — 480 × 272 landscape */
+/** Air Hockey — 272 × 480 portrait */
 const C = Object.freeze({
-  W: 480, H: 272,
+  W: 272, H: 480,
   PR: 14,    // puck radius
   PAR: 28,   // paddle radius
   MAXSPD: 14,
   FRIC: 0.99,
-  GH: 120,   // goal height
+  GW: 120,   // goal width
   WIN: 7,
-  get GY() { return (this.H - this.GH) / 2; },
+  get GX() { return (this.W - this.GW) / 2; },
 });
 
 function createState() {
   return {
     puck:    { x: C.W/2, y: C.H/2, vx: 0, vy: 0 },
     paddles: [
-      { x: 60,      y: C.H/2, vx: 0, vy: 0 },  // left  (P0 red)
-      { x: C.W-60,  y: C.H/2, vx: 0, vy: 0 },  // right (P1 blue)
+      { x: C.W/2, y: 60,      vx: 0, vy: 0 },  // top   (P0 red)
+      { x: C.W/2, y: C.H-60,  vx: 0, vy: 0 },  // bottom (P1 blue)
     ],
     scores: [0, 0], phase: 'waiting', winner: null,
   };
@@ -28,7 +28,7 @@ function launch(state) {
   const a = (Math.random() * 40 - 20) * Math.PI / 180;
   const d = Math.random() < 0.5 ? 1 : -1;
   Object.assign(state.puck, { x: C.W/2, y: C.H/2,
-    vx: d * Math.cos(a) * 5, vy: Math.sin(a) * 5 });
+    vx: Math.sin(a) * 5, vy: d * Math.cos(a) * 5 });
 }
 
 /**
@@ -41,19 +41,19 @@ function tick(state) {
   p.x += p.vx;  p.y += p.vy;
   p.vx *= C.FRIC;  p.vy *= C.FRIC;
 
-  // Top / bottom walls
-  if (p.y - C.PR < 0)     { p.y = C.PR;       p.vy =  Math.abs(p.vy); }
-  if (p.y + C.PR > C.H)   { p.y = C.H - C.PR; p.vy = -Math.abs(p.vy); }
+  // Left / right walls
+  if (p.x - C.PR < 0)     { p.x = C.PR;       p.vx =  Math.abs(p.vx); }
+  if (p.x + C.PR > C.W)   { p.x = C.W - C.PR; p.vx = -Math.abs(p.vx); }
 
-  // Left wall / goal
-  if (p.x - C.PR < 0) {
-    if (p.y >= C.GY && p.y <= C.GY + C.GH) return 1;  // P1 scores
-    p.x = C.PR;  p.vx = Math.abs(p.vx);
+  // Top wall / goal
+  if (p.y - C.PR < 0) {
+    if (p.x >= C.GX && p.x <= C.GX + C.GW) return 1;  // P1 scores
+    p.y = C.PR;  p.vy = Math.abs(p.vy);
   }
-  // Right wall / goal
-  if (p.x + C.PR > C.W) {
-    if (p.y >= C.GY && p.y <= C.GY + C.GH) return 0;  // P0 scores
-    p.x = C.W - C.PR;  p.vx = -Math.abs(p.vx);
+  // Bottom wall / goal
+  if (p.y + C.PR > C.H) {
+    if (p.x >= C.GX && p.x <= C.GX + C.GW) return 0;  // P0 scores
+    p.y = C.H - C.PR;  p.vy = -Math.abs(p.vy);
   }
 
   // Paddle collisions
@@ -73,10 +73,10 @@ function tick(state) {
 
   // Constrain paddles to their halves
   const [p0, p1] = state.paddles;
-  p0.x = clamp(p0.x, C.PAR,          C.W/2 - C.PAR);
-  p0.y = clamp(p0.y, C.PAR,          C.H   - C.PAR);
-  p1.x = clamp(p1.x, C.W/2 + C.PAR, C.W   - C.PAR);
-  p1.y = clamp(p1.y, C.PAR,          C.H   - C.PAR);
+  p0.x = clamp(p0.x, C.PAR, C.W - C.PAR);
+  p0.y = clamp(p0.y, C.PAR, C.H/2 - C.PAR);
+  p1.x = clamp(p1.x, C.PAR, C.W - C.PAR);
+  p1.y = clamp(p1.y, C.H/2 + C.PAR, C.H - C.PAR);
 
   return null;
 }

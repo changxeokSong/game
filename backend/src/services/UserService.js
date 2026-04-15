@@ -1,5 +1,5 @@
 'use strict';
-const redis = require('../db/redis');
+const { redis } = require('../db/redis');
 const { now } = require('../utils/helpers');
 
 const key = name => `user:${name}`;

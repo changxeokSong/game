@@ -15,10 +15,10 @@
 <body>
 
   <div class="topbar">
-    <div class="logo red">🔧 ADMIN</div>
+    <div class="logo red">⚙️ SYS.CONSOLE</div>
     <div class="spacer"></div>
     <button class="btn sm" onclick="refresh()">RE</button>
-    <button class="btn sm red" onclick="goBack()">EXIT</button>
+    <button class="btn sm red clickable" onclick="goBack()">EXIT</button>
   </div>
 
   <!-- Tab Bar -->
@@ -86,7 +86,7 @@
         <h3 class="section-label">BROADCAST</h3>
         <div class="card action-card">
           <div class="chat-input-row">
-            <input id="bc-inp" type="text" maxlength="200" placeholder="전체 공지 메시지…">
+            <input id="bc-inp" class="inp" type="text" maxlength="200" placeholder="전체 공지 메시지…">
             <button class="btn primary sm" onclick="sendBroadcast()">SEND</button>
           </div>
         </div>
