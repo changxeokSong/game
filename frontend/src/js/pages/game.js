@@ -63,16 +63,11 @@ async function init() {
       gamePhase = 'waiting';
       badgeEl.textContent = isSpectator ? 'WATCHING' : 'WAITING';
       
-      // Fix: Set dimensions from server
-      GAME_W = m.gameW || 272;
-      GAME_H = m.gameH || 480;
-      canvas.width = GAME_W * 2;
-      canvas.height = GAME_H * 2;
-      canvas.style.aspectRatio = `${GAME_W} / ${GAME_H}`;
+      // Strict Fixed Resolution: 272x480
+      canvas.width = 544; // 272 * 2
+      canvas.height = 960; // 480 * 2
       
-      // Re-calculate scale for inputs
-      const rect = canvas.getBoundingClientRect();
-      _scale = rect.width / GAME_W;
+      resize(); // Update _scale based on screen
 
       if (isSpectator) {
         if (m.playerNames) {
