@@ -15,8 +15,8 @@ function createState() {
   return {
     puck:    { x: C.W/2, y: C.H/2, vx: 0, vy: 0 },
     paddles: [
-      { x: C.W/2, y: 18 },       // top  (P0)
-      { x: C.W/2, y: C.H-18 },   // bottom (P1)
+      { x: C.W/2, y: 18,       tx: C.W/2 },  // top
+      { x: C.W/2, y: C.H-18,   tx: C.W/2 },  // bottom
     ],
     scores: [0, 0], phase: 'waiting', winner: null,
   };
@@ -32,6 +32,15 @@ function launch(state) {
 function tick(state) {
   if (state.phase !== 'playing') return null;
   const b = state.puck;
+
+  // Smooth Paddles
+  state.paddles.forEach(p => {
+    const dx = p.tx - p.x;
+    const maxStep = 18;
+    if (Math.abs(dx) > maxStep) p.x += Math.sign(dx) * maxStep;
+    else p.x = p.tx;
+  });
+
   b.x += b.vx;  b.y += b.vy;
 
   if (b.x - C.BR < 0)   { b.x = C.BR;       b.vx =  Math.abs(b.vx); }
@@ -63,7 +72,7 @@ function tick(state) {
 }
 
 function move(state, idx, x, _y) {
-  state.paddles[idx].x = clamp(x, C.PW/2, C.W - C.PW/2);
+  state.paddles[idx].tx = clamp(x, C.PW/2, C.W - C.PW/2);
 }
 
 module.exports = { C, createState, launch, tick, move };

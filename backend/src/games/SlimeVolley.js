@@ -15,8 +15,8 @@ function createState() {
   return {
     ball: { x: C.W / 2, y: 100, vx: 0, vy: 0 },
     slimes: [
-      { x: C.W / 2, y: 50,      vx: 0, vy: 0, color: '#ff6b6b' },
-      { x: C.W / 2, y: C.H - 50, vx: 0, vy: 0, color: '#4ecdc4' },
+      { x: C.W / 2, y: 50,      vx: 0, vy: 0, tx: C.W / 2, color: '#ff6b6b' },
+      { x: C.W / 2, y: C.H - 50, vx: 0, vy: 0, tx: C.W / 2, color: '#4ecdc4' },
     ],
     scores: [0, 0], phase: 'waiting', winner: null,
   };
@@ -46,7 +46,14 @@ function tick(state) {
   state.slimes.forEach((s, idx) => {
     const isTop = idx === 0;
     
-    // Slime horizontal movement done in move()
+    // Smooth Horizontal Movement
+    const dx = s.tx - s.x;
+    const maxStep = 12;
+    const oldX = s.x;
+    if (Math.abs(dx) > maxStep) s.x += Math.sign(dx) * maxStep;
+    else s.x = s.tx;
+    s.vx = s.x - oldX;
+
     // Apply gravity to slimes
     s.vy += C.G;
     s.y += s.vy;
@@ -96,10 +103,8 @@ function move(state, idx, x, y) {
   const s = state.slimes[idx];
   const isTop = idx === 0;
   
-  // Horizontal movement
-  const prevX = s.x;
-  s.x = clamp(x, C.SR, C.W - C.SR);
-  s.vx = s.x - prevX;
+  // Horizontal target
+  s.tx = clamp(x, C.SR, C.W - C.SR);
 
   // Jump if tapping upper/lower area
   const shouldJump = isTop ? (y < 100) : (y > C.H - 100);

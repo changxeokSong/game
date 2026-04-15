@@ -14,8 +14,8 @@ const C = Object.freeze({
 function createState() {
   return {
     tanks: [
-      { x: C.W / 2, y: 60,      hp: 3, lastFire: 0, color: '#ff6b6b' },
-      { x: C.W / 2, y: C.H - 60, hp: 3, lastFire: 0, color: '#4ecdc4' },
+      { x: C.W * 0.2, y: 80,       tx: C.W * 0.2, ty: 80,       hp: 3, lastFire: 0, color: '#ff6b6b' },
+      { x: C.W * 0.8, y: C.H - 80, tx: C.W * 0.8, ty: C.H - 80, hp: 3, lastFire: 0, color: '#4ecdc4' },
     ],
     bullets: [],
     scores: [0, 0], phase: 'waiting', winner: null,
@@ -31,7 +31,21 @@ function launch(state) {
 function tick(state) {
   if (state.phase !== 'playing') return null;
 
-  // Move Bullets
+  // Move tanks (Smoothing)
+  state.tanks.forEach(t => {
+    const dx = t.tx - t.x, dy = t.ty - t.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const maxStep = 10;
+    if (dist > maxStep) {
+      t.x += (dx / dist) * maxStep;
+      t.y += (dy / dist) * maxStep;
+    } else {
+      t.x = t.tx;
+      t.y = t.ty;
+    }
+  });
+
+  // Update Bullets
   for (let i = state.bullets.length - 1; i >= 0; i--) {
     const b = state.bullets[i];
     b.x += b.vx; b.y += b.vy;
@@ -71,12 +85,12 @@ function move(state, idx, x, y) {
   const t = state.tanks[idx];
   const isTop = idx === 0;
 
-  // Move tank (constrained to half)
-  t.x = clamp(x, C.TR, C.W - C.TR);
-  if (isTop) t.y = clamp(y, C.TR, C.H / 2 - 20);
-  else       t.y = clamp(y, C.H / 2 + 20, C.H - C.TR);
+  // Set target position (constrained to half)
+  t.tx = clamp(x, C.TR, C.W - C.TR);
+  if (isTop) t.ty = clamp(y, C.TR, C.H / 2 - 20);
+  else       t.ty = clamp(y, C.H / 2 + 20, C.H - C.TR);
 
-  // Fire if tapping far top/bottom
+  // Fire if tapping own goal area / far side
   const shouldFire = (isTop && y > C.H/2 - 20) || (!isTop && y < C.H/2 + 20);
   const now = Date.now();
   if (shouldFire && now - t.lastFire > C.RELOAD) {

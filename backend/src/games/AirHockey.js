@@ -17,8 +17,8 @@ function createState() {
   return {
     puck:    { x: C.W/2, y: C.H/2, vx: 0, vy: 0 },
     paddles: [
-      { x: C.W/2, y: 60,      vx: 0, vy: 0 },  // top   (P0 red)
-      { x: C.W/2, y: C.H-60,  vx: 0, vy: 0 },  // bottom (P1 blue)
+      { x: C.W/2, y: 60,      vx: 0, vy: 0, tx: C.W/2, ty: 60 },  // top
+      { x: C.W/2, y: C.H-60,  vx: 0, vy: 0, tx: C.W/2, ty: C.H-60 },  // bottom
     ],
     scores: [0, 0], phase: 'waiting', winner: null,
   };
@@ -29,6 +29,9 @@ function launch(state) {
   const d = Math.random() < 0.5 ? 1 : -1;
   Object.assign(state.puck, { x: C.W/2, y: C.H/2,
     vx: Math.sin(a) * 3, vy: d * Math.cos(a) * 3 });
+  
+  // Sync targets on launch
+  state.paddles.forEach(p => { p.tx = p.x; p.ty = p.y; p.vx = 0; p.vy = 0; });
 }
 
 /**
@@ -38,6 +41,30 @@ function launch(state) {
 function tick(state) {
   if (state.phase !== 'playing') return null;
   const p = state.puck;
+
+  // 1. Update Paddles (Smoothing + Velocity calculation)
+  state.paddles.forEach((pad, idx) => {
+    const dx = pad.tx - pad.x;
+    const dy = pad.ty - pad.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const maxStep = 25; // Smoothing speed limit
+
+    const oldX = pad.x;
+    const oldY = pad.y;
+
+    if (dist > maxStep) {
+      pad.x += (dx / dist) * maxStep;
+      pad.y += (dy / dist) * maxStep;
+    } else {
+      pad.x = pad.tx;
+      pad.y = pad.ty;
+    }
+
+    // Velocity for physical transfer
+    pad.vx = pad.x - oldX;
+    pad.vy = pad.y - oldY;
+  });
+
   p.x += p.vx;  p.y += p.vy;
   p.vx *= C.FRIC;  p.vy *= C.FRIC;
 
@@ -82,9 +109,9 @@ function tick(state) {
 }
 
 function move(state, idx, x, y) {
-  const pad = state.paddles[idx], px = pad.x, py = pad.y;
-  pad.x = x;  pad.y = y;
-  pad.vx = pad.x - px;  pad.vy = pad.y - py;
+  const pad = state.paddles[idx];
+  pad.tx = x;
+  pad.ty = y;
 }
 
 module.exports = { C, createState, launch, tick, move };
