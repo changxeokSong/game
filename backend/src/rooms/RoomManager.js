@@ -18,9 +18,22 @@ class RoomManager {
   // ── Public API ────────────────────────────────────────────
 
   join(ws, gameId) {
-    if (!GAMES[gameId]) return;
-    this.leave(ws);                          // leave current room first
-    let room = this._findWaiting(gameId) || this._create(gameId);
+    if (!GAMES[gameId] && typeof gameId !== 'object') return;
+    this.leave(ws);
+
+    let room;
+    if (typeof gameId === 'object') {
+      room = this.rooms.get(gameId.roomId);
+      gameId = room ? room.gameId : null;
+    } else {
+      room = this._findWaiting(gameId) || this._create(gameId);
+    }
+
+    if (!room) return;
+    if (room.players.length >= 2) {
+      return this.spectate(ws, room.id);
+    }
+
     const idx = room.players.length;
     room.players.push(ws);
     this.clients.get(ws).room = room.id;
@@ -28,6 +41,7 @@ class RoomManager {
     this.bc.send(ws, {
       type: 'game_init', playerIdx: idx, gameId,
       state: room.state, gameW: GAMES[gameId].W, gameH: GAMES[gameId].H,
+      playerNames: room.players.map(p => this.clients.get(p)?.username || 'Unknown'),
     });
 
     if (room.players.length === 2) {
@@ -36,6 +50,7 @@ class RoomManager {
       this.bc.bcastRoom(room.id, { type: 'game_start', state: room.state });
       this._startLoop(room);
     }
+    this._pushRoomList();
   }
 
   leave(ws) {
@@ -43,13 +58,36 @@ class RoomManager {
     if (!info || info.room === 'lobby') return;
     const room = this.rooms.get(info.room);
     if (room) {
-      this._stopLoop(room);
-      room.players = room.players.filter(p => p !== ws);
-      this.bc.bcastRoom(room.id, { type: 'opponent_left' });
-      if (room.players.length === 0) this.rooms.delete(room.id);
-      else room.state = GAMES[room.gameId].createState();
+      if (room.players.includes(ws)) {
+        this._stopLoop(room);
+        room.players = room.players.filter(p => p !== ws);
+        this.bc.bcastRoom(room.id, { type: 'opponent_left' });
+        if (room.players.length === 0 && room.spectators.length === 0) this.rooms.delete(room.id);
+        else if (room.players.length > 0) room.state = GAMES[room.gameId].createState();
+      } else {
+        room.spectators = room.spectators.filter(p => p !== ws);
+        if (room.players.length === 0 && room.spectators.length === 0) this.rooms.delete(room.id);
+      }
     }
     info.room = 'lobby';
+    this._pushRoomList();
+  }
+
+  spectate(ws, roomId) {
+    const room = this.rooms.get(roomId);
+    if (!room) return;
+    this.leave(ws);
+    room.spectators.push(ws);
+    this.clients.get(ws).room = room.id;
+
+    this.bc.send(ws, {
+      type: 'game_init', playerIdx: -1, gameId: room.gameId, isSpectator: true,
+      state: room.state, gameW: GAMES[room.gameId].W, gameH: GAMES[room.gameId].H,
+    });
+
+    const name = this.clients.get(ws).username;
+    this.bc.bcastRoom(room.id, { type: 'chat', username: '🔔', msg: `${name}님이 관전을 시작했습니다.`, ts: Date.now(), system: true });
+    this._pushRoomList();
   }
 
   move(ws, x, y) {
@@ -75,7 +113,10 @@ class RoomManager {
   list() {
     return [...this.rooms.values()].map(r => ({
       id: r.id, gameId: r.gameId,
-      players: r.players.length, phase: r.state.phase, scores: r.state.scores,
+      players: r.players.length, 
+      playerNames: r.players.map(p => this.clients.get(p)?.username || 'Unknown'),
+      spectators: r.spectators.length,
+      phase: r.state.phase, scores: r.state.scores,
     }));
   }
 
@@ -83,7 +124,10 @@ class RoomManager {
 
   _create(gameId) {
     const id   = `${gameId}:${++this._seq}`;
-    const room = { id, gameId, players: [], state: GAMES[gameId].createState(), loop: null };
+    const room = { 
+      id, gameId, players: [], spectators: [], 
+      state: GAMES[gameId].createState(), loop: null 
+    };
     this.rooms.set(id, room);
     return room;
   }
@@ -125,6 +169,7 @@ class RoomManager {
         if (info?.username) this.rankSvc.recordResult(info.username, room.gameId, i === scorer ? 'win' : 'loss');
       });
       this._pushAllRankings();
+      this._pushRoomList();
       return;
     }
 
@@ -134,6 +179,7 @@ class RoomManager {
       room.state.phase = 'playing';
       this.bc.bcastRoom(room.id, { type: 'game_resume', state: room.state });
       this._startLoop(room);
+      this._pushRoomList();
     }, 2000);
   }
 
@@ -142,6 +188,10 @@ class RoomManager {
     for (const gid of Object.keys(GAMES))
       all[gid] = await this.rankSvc.getTop(gid);
     this.bc.bcastAll({ type: 'rankings_all', data: all });
+  }
+
+  _pushRoomList() {
+    this.bc.bcastLobby({ type: 'room_list', rooms: this.list() });
   }
 }
 

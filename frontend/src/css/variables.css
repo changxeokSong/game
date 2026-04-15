@@ -25,5 +25,9 @@
   --radius:   6px;
   --radius-sm: 3px;
   --shadow-accent: 0 0 16px rgba(0, 212, 255, .1);
-  --transition: .1s ease-out;
+  --transition: 0.2s ease;
+  
+  /* Mobile Viewport Fix */
+  --vh: 1vh;
+  --full-h: calc(var(--vh, 1vh) * 100);
 }

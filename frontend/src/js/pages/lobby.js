@@ -1,3 +1,4 @@
+import '/js/viewport.js';
 import { WSClient } from '../ws.js';
 import { session } from '../utils.js';
 import { Chat } from '../components/Chat.js';
@@ -21,6 +22,7 @@ async function init() {
       games = m.games;
       rankings = m.rankings;
       renderGames();
+      renderRoomList(m.roomList || []);
       renderRankTabs();
       chat.appendHistory(m.chatHistory);
     });
@@ -36,6 +38,10 @@ async function init() {
 
     ws.on('chat', m => {
       chat.append(m);
+    });
+
+    ws.on('room_list', m => {
+      renderRoomList(m.rooms);
     });
 
     ws.on('rankings_all', m => {
@@ -58,7 +64,9 @@ async function init() {
       alert('Admin access denied');
     });
 
-    ws.send({ type: 'login', username, silent: !!session.get('adminToken') });
+    const fromGame = session.get('fromGame');
+  session.del('fromGame'); // Reset flag
+  ws.send({ type: 'login', username, context: 'lobby', fromGame, silent: !!session.get('adminToken') });
 
   } catch (err) {
     console.error('WS Error:', err);
@@ -83,6 +91,44 @@ function renderGames() {
       ws.close();
       sessionStorage.setItem('gameId', g.id);
       location.href = `/game?id=${g.id}`;
+    };
+    el.appendChild(div);
+  });
+}
+
+function renderRoomList(rooms) {
+  const el = document.getElementById('room-list');
+  if (!el) return;
+  el.innerHTML = ''; // Clear
+  if (!rooms.length) {
+    el.innerHTML = '<div class="empty-msg card">현재 진행 중인 경기가 없습니다.</div>';
+    return;
+  }
+  rooms.forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'room-card card';
+    const isFull = r.players >= 2;
+    const p1 = r.playerNames[0] || '...';
+    const p2 = r.playerNames[1] || '...';
+    
+    div.innerHTML = `
+      <div class="room-info">
+        <div class="room-game">${esc(r.gameId.toUpperCase())}</div>
+        <div class="room-matchup">
+          <span class="p-name">${esc(p1)}</span>
+          <span class="vs">vs</span>
+          <span class="p-name">${esc(p2)}</span>
+        </div>
+        <div class="room-stats">${r.scores[0]} : ${r.scores[1]} (${r.spectators} watching)</div>
+      </div>
+      <button class="btn ${isFull ? 'sub' : 'primary'} sm">
+        ${isFull ? 'SPECTATE' : 'JOIN'}
+      </button>
+    `;
+    div.querySelector('button').onclick = () => {
+      ws.close();
+      session.set('gameId', r.gameId);
+      location.href = `/game?id=${r.gameId}&roomId=${r.id}`;
     };
     el.appendChild(div);
   });

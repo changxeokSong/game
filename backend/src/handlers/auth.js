@@ -28,12 +28,19 @@ function register(router, ctx) {
     bc.send(ws, {
       type: 'login_ok', username: name, isAdmin: info.isAdmin,
       chatHistory, rankings,
+      roomList: ctx.rooms.list(),
       games: Object.values(GAMES).map(g => ({ id: g.id, name: g.name, desc: g.desc, icon: g.icon })),
     });
 
     _pushUserList(clients, bc);
     if (!msg.silent) {
-      bc.bcastLobby({ type: 'chat', username: '🔔', msg: `${name}님이 입장했습니다.`, ts: now(), room: 'lobby', system: true });
+      let sysMsg = `${name}님이 입장했습니다.`;
+      if (msg.context === 'game') {
+        sysMsg = `${name}님이 ${msg.gameId || '게임'}방에 입장했습니다! 🎮`;
+      } else if (msg.context === 'lobby' && msg.fromGame) {
+        sysMsg = `${name}님이 게임을 마치고 로비로 복귀했습니다. 🏠`;
+      }
+      bc.bcastLobby({ type: 'chat', username: '🔔', msg: sysMsg, ts: now(), room: 'lobby', system: true });
     }
   });
 

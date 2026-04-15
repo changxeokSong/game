@@ -23,7 +23,11 @@ export class Chat {
     const who = m.system ? 'SYSTEM' : m.username;
     div.innerHTML = `<span class="who">${esc(who)}</span>${esc(m.msg)}`;
     this._msgs.appendChild(div);
-    this._msgs.scrollTop = this._msgs.scrollHeight;
+    // Smooth scroll for mobile & desktop
+    setTimeout(() => {
+      this._msgs.scrollTop = this._msgs.scrollHeight;
+      div.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 50);
   }
 
   appendHistory(list) {
@@ -40,5 +44,6 @@ export class Chat {
     if (!msg) return;
     this._ws.send({ type: 'chat', msg });
     this._inp.value = '';
+    this._inp.blur(); // Dismiss mobile keyboard
   }
 }

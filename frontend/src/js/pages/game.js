@@ -1,3 +1,4 @@
+import '/js/viewport.js';
 import { WSClient } from '../ws.js';
 import { session } from '../utils.js';
 import { Chat } from '../components/Chat.js';
@@ -7,6 +8,7 @@ if (!username) location.replace('/');
 
 const params = new URLSearchParams(location.search);
 const gameId = params.get('id') || session.get('gameId') || 'air-hockey';
+const roomId = params.get('roomId');
 
 const ws = new WSClient();
 const chat = new Chat('chat-msgs', 'chat-inp', ws);
@@ -51,22 +53,31 @@ async function init() {
     await ws.connect();
 
     ws.on('login_ok', () => {
-      ws.send({ type: 'join_game', gameId });
+      ws.send({ type: 'join_game', gameId: roomId ? { roomId } : gameId });
     });
 
     ws.on('game_init', m => {
       playerIdx = m.playerIdx;
+      const isSpectator = !!m.isSpectator;
       state = m.state;
       gamePhase = 'waiting';
-      badgeEl.textContent = 'WAITING';
-      setPlayerName(playerIdx, username);
+      badgeEl.textContent = isSpectator ? 'WATCHING' : 'WAITING';
+      
+      if (isSpectator) {
+        if (m.playerNames) {
+          setPlayerName(0, m.playerNames[0]);
+          setPlayerName(1, m.playerNames[1]);
+        }
+      } else {
+        setPlayerName(playerIdx, username);
+      }
     });
 
     ws.on('game_start', m => {
       state = m.state;
       gamePhase = 'playing';
       hideOverlay();
-      badgeEl.textContent = 'PLAYING';
+      badgeEl.textContent = playerIdx === -1 ? 'WATCHING' : 'PLAYING';
     });
 
     ws.on('game_state', m => {
@@ -119,11 +130,22 @@ async function init() {
 
     ws.on('user_list', m => {
       m.users.forEach(u => {
-        if (u.username !== username) setPlayerName(1 - playerIdx, u.username);
+        if (playerIdx === -1) {
+          // As spectator, update any named room slot
+          if (u.room === roomId) {
+            // Need a way to know which slot u is in. 
+            // Better: use room_list for more precise name mapping globally?
+            // For now, let's just let the server send player names in game_init or similar.
+          }
+        } else if (u.username !== username) {
+          setPlayerName(1 - playerIdx, u.username);
+        }
       });
     });
 
-    ws.send({ type: 'login', username });
+    const fromGame = session.get('fromGame');
+    session.del('fromGame'); // Reset flag
+    ws.send({ type: 'login', username, context: 'game', gameId, fromGame, silent: !!session.get('adminToken') });
 
   } catch (err) {
     console.error('WS Error:', err);
@@ -131,8 +153,10 @@ async function init() {
 }
 
 function setPlayerName(idx, name) {
+  if (idx < 0) return;
   playerNames[idx] = name;
-  document.getElementById(`name${idx}`).textContent = name;
+  const el = document.getElementById(`name${idx}`);
+  if (el) el.textContent = name;
 }
 
 function updateScore() {
@@ -156,12 +180,14 @@ window.requestRestart = () => {
 };
 
 window.goLobby = () => {
+  session.set('fromGame', true);
   ws.send({ type: 'leave_game' });
 };
 
 // ── Input ─────────────────────────────────────────────────
 function sendMove(cx, cy) {
   if (gamePhase !== 'playing') return;
+  if (playerIdx === -1) return; // Spectators can't move
   const rect = canvas.getBoundingClientRect();
   let x = (cx - rect.left) / _scale;
   let y = (cy - rect.top) / _scale;
