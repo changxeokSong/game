@@ -21,13 +21,12 @@ let _scale = 1;
 
 canvas.width = GAME_W;
 canvas.height = GAME_H;
+
 function resize() {
   const container = document.getElementById('canvas-wrap');
-  const maxW = container.clientWidth - 4; // padding
-  const s = maxW / GAME_W;
-  canvas.style.width = (GAME_W * s) + 'px';
-  canvas.style.height = (GAME_H * s) + 'px';
-  _scale = s;
+  const rect = container.getBoundingClientRect();
+  const scale = rect.width / GAME_W;
+  _scale = scale;
 }
 window.addEventListener('resize', resize);
 resize();
@@ -64,8 +63,8 @@ async function init() {
       badgeEl.textContent = isSpectator ? 'WATCHING' : 'WAITING';
       
       // Strict Fixed Resolution: 272x480
-      canvas.width = 544; // 272 * 2
-      canvas.height = 960; // 480 * 2
+      canvas.width = GAME_W; 
+      canvas.height = GAME_H; 
       
       resize(); // Update _scale based on screen
 
