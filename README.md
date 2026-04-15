@@ -1,41 +1,40 @@
-# SYS.METRICS - Stealth Multiplayer Game Suite
+# SYS.METRICS — Advanced Monitoring & Entertainment Platform
 
-A high-performance, stealth-oriented multiplayer game platform designed to look like a system monitoring dashboard.
+A high-performance, stealth-mode gaming platform designed to look like a professional system monitoring dashboard.
 
-## Features
+## 🚀 Key Features
+- **Stealth Mode UI**: Professional glassmorphism design that blends into corporate environments.
+- **Vertical Orientation**: Optimized for portrait mode (272x480), perfect for narrow windows or mobile devices.
+- **Advanced Networking**: Uses **Redis Pub/Sub** for cross-server chat synchronization and real-time rankings.
+- **Security & Stability**: Integrated **WebSocket Rate Limiting** to prevent spam and DDoS.
+- **High Performance**: Physics engine optimized for low-latency, 128fps gameplay.
+- **Mobile Optimized**: Uses `localStorage` for persistent sessions and relative "Me at Bottom" view logic.
 
-- **Stealth UI**: Designed to look like a professional metrics dashboard (`SYS.METRICS`).
-- **Vertical Alignment**: Optimized for narrow windows and portrait-mode "stealth" viewing.
-- **Glassmorphism Design**: Modern, premium aesthetic with blur effects and neon accents.
-- **High Performance**:
-  - **Redis Sorted Sets**: Real-time, instant ranking management.
-  - **Redis Pub/Sub**: Scalable, cross-server real-time chat.
-  - **Redis Rate Limiting**: Built-in protection against message flooding.
+## 🕹️ Games Included
+- **PONG (Vertical)**: Classic paddle-and-ball gameplay with dynamic speed scaling.
+- **AIR HOCKEY (Vertical)**: Physics-based mallet gameplay with friction and goal detection.
 
-## Tech Stack
+## ⚙️ Administration (SYS.CONSOLE)
+Access the administrative dashboard via the environment-defined access code.
+- Real-time user/room monitoring.
+- Global chat broadcast system.
+- Ranking management and reset functions.
+- Detailed administrative logs.
 
-- **Frontend**: Vanilla HTML5, CSS3 (Modern Glassmorphism), JavaScript (ES Modules).
-- **Backend**: Node.js, WebSocket (ws).
-- **Database**: Redis (In-memory data structures).
-- **Deployment**: Docker & Docker Compose.
+## 🛠️ Tech Stack
+- **Frontend**: Vanilla JavaScript (ES Modules), HTML5 Canvas, CSS3 (Glassmorphism).
+- **Backend**: Node.js, WebSocket (`ws`).
+- **Data Layer**: Redis (Sorted Sets, Pub/Sub, Key-Value).
+- **Infrastructure**: Docker & Docker Compose.
 
-## Getting Started
-
-1. **Build and Start**:
+## 🏁 Quick Start
+1. Ensure Docker is installed.
+2. Clone the repository.
+3. Start the system:
    ```bash
    docker-compose up -d --build
    ```
-2. **Access**:
-   - Open `http://localhost:3000` in your browser.
-   - Enter a nickname and start playing!
+4. Access the platform at `http://localhost:3000`.
 
-## Advanced Mechanisms
-
-### 1. Redis Rate Limiting
-Incoming WebSocket messages are limited to 50 requests per second per IP to prevent spam and server overload.
-
-### 2. Scalable Chat (Pub/Sub)
-Messages are published to a global Redis channel (`chat_global`). This allows multiple backend instances to share the same chat stream seamlessly.
-
-### 3. Vertical Play
-Games (Pong, Air Hockey) are re-engineered for vertical (Top vs. Bottom) play, fitting perfectly into thin sidebar windows.
+---
+*Created with focus on performance, aesthetics, and stealth.*

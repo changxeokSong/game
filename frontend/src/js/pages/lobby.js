@@ -151,7 +151,8 @@ function esc(s) {
 }
 
 window.logout = () => {
-  sessionStorage.clear();
+  session.del('username');
+  session.del('adminToken');
   ws.close();
   location.replace('/');
 };
