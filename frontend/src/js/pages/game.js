@@ -207,6 +207,36 @@ canvas.addEventListener('touchmove', e => {
   e.preventDefault();
   sendMove(e.touches[0].clientX, e.touches[0].clientY);
 }, { passive: false });
+canvas.addEventListener('touchstart', e => {
+  sendMove(e.touches[0].clientX, e.touches[0].clientY);
+}, { passive: false });
+
+// ── Keyboard Support (Desktop) ──────────────────────────
+window.addEventListener('keydown', e => {
+  if (gamePhase !== 'playing' || playerIdx === -1) return;
+  const key = e.key.toLowerCase();
+  
+  // Current position simulation for keys
+  let fakeX = GAME_W / 2;
+  let fakeY = GAME_H / 2;
+  
+  // Left/Right movement simulations
+  if (key === 'arrowleft' || key === 'a')  { fakeX = 0; }
+  if (key === 'arrowright' || key === 'd') { fakeX = GAME_W; }
+  
+  // Action (Jump/Fire) simulations
+  if (key === ' ' || key === 'arrowup' || key === 'w') {
+    // For Slime Volley/Tanks, "tap" the far side relative to the player
+    fakeY = (playerIdx === 0) ? GAME_H : 0; 
+  }
+
+  // Map to sendMove (which handles coordinate translation)
+  // We use client coordinates simulation based on canvas position
+  const rect = canvas.getBoundingClientRect();
+  const screenX = rect.left + (fakeX * _scale);
+  const screenY = rect.top + (fakeY * _scale);
+  sendMove(screenX, screenY);
+});
 
 // ── Rendering ─────────────────────────────────────────────
 const RENDERERS = {
