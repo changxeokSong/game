@@ -47,10 +47,10 @@ function tick(state) {
     const isTop = idx === 0;
     
     // Smooth Horizontal Movement
-    const dx = s.tx - s.x;
+    const txDiff = s.tx - s.x;
     const maxStep = 12;
     const oldX = s.x;
-    if (Math.abs(dx) > maxStep) s.x += Math.sign(dx) * maxStep;
+    if (Math.abs(txDiff) > maxStep) s.x += Math.sign(txDiff) * maxStep;
     else s.x = s.tx;
     s.vx = s.x - oldX;
 

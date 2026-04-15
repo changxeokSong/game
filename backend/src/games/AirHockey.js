@@ -44,17 +44,17 @@ function tick(state) {
 
   // 1. Update Paddles (Smoothing + Velocity calculation)
   state.paddles.forEach((pad, idx) => {
-    const dx = pad.tx - pad.x;
-    const dy = pad.ty - pad.y;
-    const dist = Math.sqrt(dx * dx + dy * dy);
+    const txDiff = pad.tx - pad.x;
+    const tyDiff = pad.ty - pad.y;
+    const dist = Math.sqrt(txDiff * txDiff + tyDiff * tyDiff);
     const maxStep = 25; // Smoothing speed limit
 
     const oldX = pad.x;
     const oldY = pad.y;
 
     if (dist > maxStep) {
-      pad.x += (dx / dist) * maxStep;
-      pad.y += (dy / dist) * maxStep;
+      pad.x += (txDiff / dist) * maxStep;
+      pad.y += (tyDiff / dist) * maxStep;
     } else {
       pad.x = pad.tx;
       pad.y = pad.ty;
