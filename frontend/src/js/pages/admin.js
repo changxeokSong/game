@@ -31,7 +31,7 @@ async function init() {
       if (data) { data.rankings = m.data; renderRankings(); }
     });
 
-    ws.send({ type: 'login', username });
+    ws.send({ type: 'login', username, silent: true });
 
   } catch (err) {
     console.error('Admin WS Error:', err);

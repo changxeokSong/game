@@ -32,7 +32,9 @@ function register(router, ctx) {
     });
 
     _pushUserList(clients, bc);
-    bc.bcastLobby({ type: 'chat', username: '🔔', msg: `${name}님이 입장했습니다.`, ts: now(), room: 'lobby', system: true });
+    if (!msg.silent) {
+      bc.bcastLobby({ type: 'chat', username: '🔔', msg: `${name}님이 입장했습니다.`, ts: now(), room: 'lobby', system: true });
+    }
   });
 
   // ── admin_auth (easter egg) ────────────────────────────────

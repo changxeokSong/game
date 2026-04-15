@@ -58,7 +58,7 @@ async function init() {
       alert('Admin access denied');
     });
 
-    ws.send({ type: 'login', username });
+    ws.send({ type: 'login', username, silent: !!session.get('adminToken') });
 
   } catch (err) {
     console.error('WS Error:', err);

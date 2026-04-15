@@ -71,11 +71,13 @@ class WSServer {
     const info = this.clients.get(ws);
     if (info?.username) {
       this._ctx.rooms.leave(ws);
-      this.bc.bcastLobby({
-        type: 'chat', username: '🔔',
-        msg: `${info.username}님이 나갔습니다.`,
-        ts: now(), room: 'lobby', system: true,
-      });
+      if (!info.isAdmin) {
+        this.bc.bcastLobby({
+          type: 'chat', username: '🔔',
+          msg: `${info.username}님이 나갔습니다.`,
+          ts: now(), room: 'lobby', system: true,
+        });
+      }
       this._pushUserList();
     }
     this.clients.delete(ws);
