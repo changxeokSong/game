@@ -435,10 +435,27 @@ function drawPlaceholder(s, name) {
   ctx.fillText(`[${name}] ENGINE SYNC...`, GAME_W/2, GAME_H/2);
 }
 
+const HINTS = {
+  'air-hockey': 'MOUSE/DRAG TO HIT PUCK',
+  'pong': 'MOUSE/DRAG TO MOVE PADDLE',
+  'tron': 'PC: [A][D] | MOBILE: TAP SIDES',
+  'tanks': 'PC: [WASD][SPACE] | MOBILE: DRAG/TAP TOP',
+  'volley': 'PC: [A][D][SPACE] | MOBILE: DRAG/TAP TOP',
+  'breakers': 'MOUSE/DRAG TO BOUNCE BALL',
+};
+
 function drawWaiting() {
   ctx.fillStyle = '#050510'; ctx.fillRect(0, 0, GAME_W, GAME_H);
   ctx.fillStyle = '#445'; ctx.font = '700 14px monospace'; ctx.textAlign = 'center';
-  ctx.fillText('INITIALIZING VECTOR...', GAME_W / 2, GAME_H / 2);
+  ctx.fillText('INITIALIZING VECTOR...', GAME_W / 2, GAME_H / 2 - 10);
+  
+  // Quick Hint
+  const hint = HINTS[gameId] || 'PREPARING...';
+  ctx.fillStyle = 'rgba(255,255,255,0.1)';
+  ctx.fillRect(10, GAME_H - 40, GAME_W - 20, 30);
+  ctx.fillStyle = 'var(--accent)';
+  ctx.font = '800 10px monospace';
+  ctx.fillText(hint, GAME_W / 2, GAME_H - 21);
 }
 
 init();
