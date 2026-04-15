@@ -50,7 +50,7 @@ async function init() {
     });
 
     ws.on('admin_granted', m => {
-      sessionStorage.setItem('adminToken', m.token);
+      session.set('adminToken', m.token);
       location.href = '/admin.html';
     });
 

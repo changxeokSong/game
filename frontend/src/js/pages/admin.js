@@ -23,7 +23,7 @@ async function init() {
 
     ws.on('admin_denied', () => {
       alert('Access Denied');
-      sessionStorage.removeItem('adminToken');
+      session.del('adminToken');
       location.replace('/lobby');
     });
 

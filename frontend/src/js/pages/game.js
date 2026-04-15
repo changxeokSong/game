@@ -186,22 +186,21 @@ canvas.addEventListener('touchmove', e => {
 function draw() {
   requestAnimationFrame(draw);
 
-  // If local player is P0 (global TOP), rotate 180 deg to see self at BOTTOM
-  const isFlipped = playerIdx === 0;
-  if (isFlipped) {
-    ctx.save();
-    ctx.translate(GAME_W, GAME_H);
-    ctx.rotate(Math.PI);
-  }
-
   if (state && (gamePhase === 'playing' || gamePhase === 'goal' || gamePhase === 'finished')) {
+    const isFlipped = playerIdx === 0;
+    if (isFlipped) {
+      ctx.save();
+      ctx.translate(GAME_W, GAME_H);
+      ctx.rotate(Math.PI);
+    }
+    
     if (gameId === 'air-hockey') drawAirHockey(state);
     else drawPong(state);
+
+    if (isFlipped) ctx.restore();
   } else {
     drawWaiting();
   }
-
-  if (isFlipped) ctx.restore();
 }
 
 function drawAirHockey(s) {
