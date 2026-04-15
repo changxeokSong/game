@@ -209,21 +209,152 @@ canvas.addEventListener('touchmove', e => {
 }, { passive: false });
 
 // ── Rendering ─────────────────────────────────────────────
+const RENDERERS = {
+  'air-hockey': drawAirHockey,
+  'pong': drawPong,
+  'tron': drawTron,
+  'tanks': drawTanks,
+  'volley': drawSlimeVolley,
+  'breakers': drawBreakers,
+};
+
+function drawTanks(s) {
+  const W = GAME_W, H = GAME_H;
+  ctx.strokeStyle = 'rgba(255,255,255,.05)'; ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
+
+  // Bullets
+  s.bullets.forEach(b => {
+    drawCircle(b.x, b.y, 4, '#fff', true);
+    // Bullet tail
+    ctx.strokeStyle = 'rgba(255,255,255,.2)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(b.x, b.y); ctx.lineTo(b.x - b.vx*2, b.y - b.vy*2); ctx.stroke();
+  });
+
+  // Tanks
+  s.tanks.forEach((t, idx) => {
+    ctx.save();
+    ctx.translate(t.x, t.y);
+    const isTop = idx === 0;
+    
+    // Body
+    drawRect(-18, -18, 36, 36, t.color, true);
+    // Turret
+    drawRect(-4, isTop ? 0 : -25, 8, 25, '#fff', true);
+    
+    // HP Bar
+    const hpW = (t.hp / 3) * 30;
+    ctx.fillStyle = '#333'; ctx.fillRect(-15, isTop ? -25 : 20, 30, 4);
+    ctx.fillStyle = t.color; ctx.fillRect(-15, isTop ? -25 : 20, hpW, 4);
+    
+    ctx.restore();
+  });
+}
+
+function drawSlimeVolley(s) {
+  const W = GAME_W, H = GAME_H;
+  // Net
+  ctx.strokeStyle = 'rgba(255,255,255,.2)'; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(W/2 - 40, H/2); ctx.lineTo(W/2 + 40, H/2); ctx.stroke();
+
+  // Ball
+  drawCircle(s.ball.x, s.ball.y, 12, '#fff', true);
+
+  // Slimes
+  s.slimes.forEach((sl, idx) => {
+    ctx.save();
+    ctx.fillStyle = sl.color;
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = sl.color;
+    ctx.beginPath();
+    // Semicircle (Slime)
+    const isTop = idx === 0;
+    const startAngle = isTop ? 0 : Math.PI;
+    const endAngle = isTop ? Math.PI : 0;
+    ctx.arc(sl.x, sl.y, 30, startAngle, endAngle, isTop);
+    ctx.fill();
+    // Eye
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(sl.x + (idx===0?1:-1)*10, sl.y + (idx===0?5:-5), 5, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  });
+}
+
+function drawBreakers(s) {
+  const W = GAME_W, H = GAME_H;
+  ctx.strokeStyle = 'rgba(255,255,255,.05)'; ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
+
+  // Bricks
+  s.bricks.forEach(b => {
+    if (!b.active) return;
+    drawRect(b.x + 2, b.y + 2, 36, 11, b.color, true);
+    // Bevel effect
+    ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 1;
+    ctx.strokeRect(b.x + 2, b.y + 2, 36, 11);
+  });
+
+  // Paddles
+  drawRect(s.paddles[0].x - 36, s.paddles[0].y - 6, 72, 12, '#ff6b6b', true);
+  drawRect(s.paddles[1].x - 36, s.paddles[1].y - 6, 72, 12, '#4ecdc4', true);
+  // Ball
+  drawCircle(s.puck.x, s.puck.y, 8, '#fff', true);
+}
+
+function drawTron(s) {
+  const W = GAME_W, H = GAME_H;
+  // Subtle Grid
+  ctx.strokeStyle = 'rgba(255,255,255,.03)'; ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 30) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 30) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+
+  s.players.forEach(p => {
+    // Draw Trail
+    if (p.trail.length > 1) {
+      ctx.save();
+      ctx.strokeStyle = p.color;
+      ctx.lineWidth = 3;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = p.color;
+      ctx.beginPath();
+      ctx.moveTo(p.trail[0].x, p.trail[0].y);
+      for (let i = 1; i < p.trail.length; i++) {
+        ctx.lineTo(p.trail[i].x, p.trail[i].y);
+      }
+      ctx.lineTo(p.x, p.y); // Connect to head
+      ctx.stroke();
+      ctx.restore();
+    }
+    // Draw Head
+    drawCircle(p.x, p.y, 5, '#fff', true);
+    drawCircle(p.x, p.y, 8, p.color, true);
+  });
+}
+
 function draw() {
   requestAnimationFrame(draw);
 
   if (state && (gamePhase === 'playing' || gamePhase === 'goal' || gamePhase === 'finished')) {
     const isFlipped = playerIdx === 0;
+    
+    // Clear background
+    ctx.fillStyle = '#050510';
+    ctx.fillRect(0, 0, GAME_W, GAME_H);
+
+    ctx.save();
     if (isFlipped) {
-      ctx.save();
       ctx.translate(GAME_W, GAME_H);
       ctx.rotate(Math.PI);
     }
     
-    if (gameId === 'air-hockey') drawAirHockey(state);
-    else drawPong(state);
+    // Apply Global Glow for premium feel
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = 'rgba(255,255,255,0.2)';
 
-    if (isFlipped) ctx.restore();
+    const render = RENDERERS[gameId] || drawPong;
+    render(state);
+
+    ctx.restore();
   } else {
     drawWaiting();
   }
@@ -231,42 +362,53 @@ function draw() {
 
 function drawAirHockey(s) {
   const W = GAME_W, H = GAME_H;
-  ctx.fillStyle = '#0b1a30'; ctx.fillRect(0, 0, W, H);
-
+  // Middle line
+  ctx.strokeStyle = 'rgba(255,255,255,.05)'; ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
   // Goals
-  ctx.strokeStyle = '#ff6b6b'; ctx.lineWidth = 2; ctx.strokeRect(AH.GX, 0, AH.GW, 10);
-  ctx.strokeStyle = '#4ecdc4'; ctx.strokeRect(AH.GX, H - 10, AH.GW, 10);
-
-  // Middle
-  ctx.strokeStyle = 'rgba(255,255,255,.1)'; ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
-
+  ctx.strokeStyle = '#ff6b6b'; ctx.lineWidth = 2; ctx.strokeRect(AH.GX, 0, AH.GW, 5);
+  ctx.strokeStyle = '#4ecdc4'; ctx.strokeRect(AH.GX, H - 5, AH.GW, 5);
   // Paddles
-  drawCircle(s.paddles[0].x, s.paddles[0].y, AH.PAR, '#ff6b6b');
-  drawCircle(s.paddles[1].x, s.paddles[1].y, AH.PAR, '#4ecdc4');
+  drawCircle(s.paddles[0].x, s.paddles[0].y, AH.PAR, '#ff6b6b', true);
+  drawCircle(s.paddles[1].x, s.paddles[1].y, AH.PAR, '#4ecdc4', true);
   // Puck
-  drawCircle(s.puck.x, s.puck.y, AH.PR, '#fff');
+  drawCircle(s.puck.x, s.puck.y, AH.PR, '#fff', true);
 }
 
 function drawPong(s) {
   const W = GAME_W, H = GAME_H;
-  ctx.fillStyle = '#050510'; ctx.fillRect(0, 0, W, H);
-  ctx.strokeStyle = 'rgba(255,255,255,.1)'; ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
-
+  ctx.strokeStyle = 'rgba(255,255,255,.05)'; ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
   // Paddles
-  ctx.fillStyle = '#ff6b6b'; ctx.fillRect(s.paddles[0].x - PG.PW/2, s.paddles[0].y - PG.PH/2, PG.PW, PG.PH);
-  ctx.fillStyle = '#4ecdc4'; ctx.fillRect(s.paddles[1].x - PG.PW/2, s.paddles[1].y - PG.PH/2, PG.PW, PG.PH);
+  drawRect(s.paddles[0].x - PG.PW/2, s.paddles[0].y - PG.PH/2, PG.PW, PG.PH, '#ff6b6b', true);
+  drawRect(s.paddles[1].x - PG.PW/2, s.paddles[1].y - PG.PH/2, PG.PW, PG.PH, '#4ecdc4', true);
   // Ball
-  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(s.puck.x, s.puck.y, PG.BR, 0, Math.PI * 2); ctx.fill();
+  drawCircle(s.puck.x, s.puck.y, PG.BR, '#fff', true);
 }
 
-function drawCircle(x, y, r, color) {
+// ── Shared Drawing Helpers ─────────────────────────────────
+
+function drawCircle(x, y, r, color, glow = false) {
+  ctx.save();
+  if (glow) { ctx.shadowBlur = 15; ctx.shadowColor = color; }
   ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+
+function drawRect(x, y, w, h, color, glow = false) {
+  ctx.save();
+  if (glow) { ctx.shadowBlur = 15; ctx.shadowColor = color; }
+  ctx.fillStyle = color; ctx.fillRect(x, y, w, h);
+  ctx.restore();
+}
+
+function drawPlaceholder(s, name) {
+  ctx.fillStyle = '#fff'; ctx.font = '12px Courier'; ctx.textAlign = 'center';
+  ctx.fillText(`[${name}] ENGINE SYNC...`, GAME_W/2, GAME_H/2);
 }
 
 function drawWaiting() {
-  ctx.fillStyle = '#09090f'; ctx.fillRect(0, 0, GAME_W, GAME_H);
-  ctx.fillStyle = '#667'; ctx.font = '16px sans-serif'; ctx.textAlign = 'center';
-  ctx.fillText('WAITING...', GAME_W / 2, GAME_H / 2);
+  ctx.fillStyle = '#050510'; ctx.fillRect(0, 0, GAME_W, GAME_H);
+  ctx.fillStyle = '#445'; ctx.font = '700 14px monospace'; ctx.textAlign = 'center';
+  ctx.fillText('INITIALIZING VECTOR...', GAME_W / 2, GAME_H / 2);
 }
 
 init();
