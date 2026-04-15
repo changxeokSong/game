@@ -1,0 +1,29 @@
+/* ── Design tokens ──────────────────────────────────────── */
+:root {
+  /* Colors */
+  --bg:        #000000; /* Pitch black for better stealth */
+  --surface:   #0a0a0f;
+  --surface-glass: rgba(10, 10, 15, 0.6);
+  --surface2:  #11111a;
+  --border:    #161625;
+  --accent:    #00d4ff;
+  --red:       #ff5555;
+  --teal:      #44ddcc;
+  --gold:      #ffcc00;
+  --text:      #d0d5e0;
+  --sub:       #556688;
+  --sys:       #2a3550;
+
+  /* Spacing (Compressed for small screens/stealth mode) */
+  --gap-xs:  2px;
+  --gap-sm:  6px;
+  --gap-md:  10px;
+  --gap-lg:  14px;
+  --gap-xl:  20px;
+
+  /* Misc */
+  --radius:   6px;
+  --radius-sm: 3px;
+  --shadow-accent: 0 0 16px rgba(0, 212, 255, .1);
+  --transition: .1s ease-out;
+}

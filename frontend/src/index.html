@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+  <title>SYS.METRICS — Login</title>
+  <!-- CSS Modules -->
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/components/card.css">
+  <link rel="stylesheet" href="/css/components/button.css">
+  <link rel="stylesheet" href="/css/pages/index.css">
+</head>
+<body>
+
+  <div class="login-wrapper">
+    <div class="logo-box">
+      <div class="logo-main">🖥️ SYS.METRICS</div>
+      <div class="logo-sub">MULTIPLAYER SERVER</div>
+    </div>
+
+    <div class="card login-card">
+      <div class="form-group">
+        <label>NICKNAME</label>
+        <input id="name-inp" class="inp" type="text" maxlength="20"
+               placeholder="닉네임을 입력하세요" autocomplete="off" autofocus>
+      </div>
+      <div id="err" class="err-msg"></div>
+      <button id="enter-btn" class="btn primary full">입장하기</button>
+    </div>
+
+    <div class="hint">※ 최대 20자 · 중복 불가</div>
+  </div>
+
+  <script type="module" src="/js/pages/index.js"></script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+/* ── Chat panel ─────────────────────────────────────────── */
+.chat-panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.chat-title {
+  padding: 7px 12px;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: var(--sub);
+  border-bottom: 1px solid var(--border);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.chat-msgs {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--gap-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.chat-entry {
+  font-size: .78rem;
+  line-height: 1.45;
+  word-break: break-word;
+}
+.chat-entry .who {
+  font-weight: 600;
+  margin-right: 4px;
+  color: var(--accent);
+}
+.chat-entry.system      { color: var(--sys); font-style: italic; }
+.chat-entry.system .who { color: var(--sub); }
+
+.chat-input-row {
+  display: flex;
+  gap: var(--gap-xs);
+  padding: var(--gap-sm);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.chat-input-row .inp {
+  flex: 1;
+  padding: 5px 10px;
+  font-size: .82rem;
+}
+
+/* ── Online users ───────────────────────────────────────── */
+.user-list { display: flex; flex-direction: column; gap: 3px; font-size: .8rem; }
+.user-entry {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+}
+.user-entry:hover { background: var(--border); }
+.user-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #22cc55; flex-shrink: 0;
+}
+.user-dot.ingame { background: #f90; }
+.user-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-room { color: var(--sub); font-size: .72rem; }

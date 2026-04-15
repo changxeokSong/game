@@ -1,0 +1,31 @@
+/* ── Button ─────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap-xs);
+  padding: 7px 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-size: .85rem;
+  cursor: pointer;
+  letter-spacing: .06em;
+  white-space: nowrap;
+  transition: transform var(--transition), background var(--transition), box-shadow var(--transition);
+  user-select: none;
+}
+.btn:hover  { transform: translateY(-1px); background: rgba(0,212,255,.12); box-shadow: var(--shadow-accent); }
+.btn:active { background: rgba(0,212,255,.22); }
+
+.btn.red  { border-color: var(--red);  color: var(--red); }
+.btn.red:hover  { background: rgba(255,107,107,.12); }
+
+.btn.teal { border-color: var(--teal); color: var(--teal); }
+.btn.teal:hover { background: rgba(78,205,196,.12); }
+
+.btn.sm   { padding: 4px 12px; font-size: .78rem; }
+.btn.full { width: 100%; padding: 10px; }
+
+.btn:disabled { opacity: .4; cursor: not-allowed; }

@@ -1,0 +1,79 @@
+.login-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 20px;
+  padding: 16px;
+  background: var(--bg);
+}
+
+.logo-box {
+  text-align: center;
+}
+
+.logo-main {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--accent);
+  text-shadow: 0 0 24px rgba(0, 212, 255, 0.4);
+  letter-spacing: 0.15em;
+}
+
+.logo-sub {
+  font-size: 0.75rem;
+  color: var(--sub);
+  margin-top: -6px;
+  letter-spacing: 0.2em;
+  opacity: 0.8;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--sub);
+  letter-spacing: 0.1em;
+}
+
+.inp {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  padding: 12px 14px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.inp:focus {
+  border-color: var(--accent);
+}
+
+.err-msg {
+  color: var(--red);
+  font-size: 0.75rem;
+  min-height: 1.2em;
+}
+
+.hint {
+  font-size: 0.65rem;
+  color: var(--sys);
+  text-align: center;
+}

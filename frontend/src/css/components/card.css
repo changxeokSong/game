@@ -1,0 +1,56 @@
+/* ── Card / Panel ───────────────────────────────────────── */
+.card {
+  background: var(--surface-glass);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+}
+
+.card.clickable:hover,
+.card.hover:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-accent);
+  transform: translateY(-2px);
+  cursor: pointer;
+}
+
+/* ── Input ──────────────────────────────────────────────── */
+.inp {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  padding: 7px 12px;
+  outline: none;
+  transition: border-color var(--transition);
+  width: 100%;
+}
+.inp:focus        { border-color: var(--accent); }
+.inp::placeholder { color: var(--sub); }
+
+/* ── Section title ──────────────────────────────────────── */
+.section-title {
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: var(--sub);
+  text-transform: uppercase;
+  margin-bottom: var(--gap-sm);
+}
+
+/* ── Stat card ──────────────────────────────────────────── */
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 18px;
+  text-align: center;
+  min-width: 120px;
+}
+.stat-card .sv { font-size: 1.8rem; font-weight: 900; color: var(--accent); }
+.stat-card .sl { font-size: .72rem; color: var(--sub); margin-top: 2px; text-transform: uppercase; letter-spacing: .08em; }

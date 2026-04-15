@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+  <title>Lobby — SYS.METRICS</title>
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/components/topbar.css">
+  <link rel="stylesheet" href="/css/components/button.css">
+  <link rel="stylesheet" href="/css/components/card.css">
+  <link rel="stylesheet" href="/css/components/chat.css">
+  <link rel="stylesheet" href="/css/components/table.css">
+  <link rel="stylesheet" href="/css/pages/lobby.css">
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="logo">🖥️ SYS.METRICS</div>
+    <div class="online-badge" id="online-count">● 0 online</div>
+    <button class="btn sm" onclick="logout()">LOGOUT</button>
+  </div>
+
+  <main class="lobby-layout">
+    <!-- Game Section -->
+    <section class="lobby-section">
+      <h2 class="section-label">SELECT GAME</h2>
+      <div id="game-list" class="game-list"></div>
+    </section>
+
+    <!-- Rankings Section -->
+    <section class="lobby-section">
+      <div class="section-header">
+        <h2 class="section-label">RANKINGS</h2>
+        <div id="rank-tabs" class="rank-tabs"></div>
+      </div>
+      <div class="card ranking-card">
+        <table class="rank-table">
+          <thead>
+            <tr><th>#</th><th>USER</th><th>W</th><th>L</th><th>%</th></tr>
+          </thead>
+          <tbody id="rank-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Online Users -->
+    <section class="lobby-section">
+      <h2 class="section-label">ONLINE</h2>
+      <div id="user-list" class="user-list"></div>
+    </section>
+
+    <!-- Chat Section -->
+    <section class="lobby-section chat-section">
+      <h2 class="section-label">LOBBY CHAT</h2>
+      <div class="chat-container card">
+        <div id="chat-msgs" class="chat-msgs"></div>
+        <div class="chat-input-row">
+          <input id="chat-inp" class="inp" type="text" maxlength="200" placeholder="메시지…" autocomplete="off">
+          <button id="chat-btn" class="btn primary sm">SEND</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="/js/pages/lobby.js"></script>
+</body>
+</html>

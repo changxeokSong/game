@@ -1,0 +1,37 @@
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  height: 38px;
+  flex-shrink: 0;
+}
+
+.topbar .logo {
+  font-size: 0.9rem;
+  font-weight: 900;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+}
+
+.topbar .spacer { flex: 1; }
+
+.topbar .online-badge {
+  background: var(--border);
+  padding: 1px 8px;
+  border-radius: 12px;
+  font-size: 0.65rem;
+  color: var(--sub);
+  white-space: nowrap;
+}
+
+.topbar .online-badge.sm { font-size: 0.6rem; padding: 1px 6px; }
+
+/* In Game Topbar */
+.score-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

@@ -1,0 +1,74 @@
+.game-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 12px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.canvas-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 480 / 272;
+  background: #000;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+canvas {
+  display: block;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.game-chat-section {
+  flex: 1;
+}
+
+.chat-container {
+  height: 280px;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+/* ── Score Bar (in Topbar) ── */
+.score-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: monospace;
+}
+
+.score-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.score-item.p0 { color: var(--red); }
+.score-item.p1 { color: var(--teal); }
+
+.p-name {
+  font-size: 0.75rem;
+  font-weight: 700;
+  max-width: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.p-score {
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+
+.score-divider {
+  color: var(--sub);
+  opacity: 0.5;
+}
