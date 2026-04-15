@@ -1,35 +1,42 @@
 'use strict';
-const { clamp } = require('../utils/helpers');
 
 /** Neon Tron — 272 × 480 portrait */
 const C = Object.freeze({
   W: 272, H: 480,
   SPEED: 2.5,
+  PLAYER_R: 5,    // head collision radius
   WIN: 3,
+  GRACE_FRAMES: 8, // ignore own trail for this many recent points
 });
 
 function createState() {
   return {
     players: [
-      { x: C.W * 0.3, y: 80,       dir: 'down',  trail: [], color: '#ff6b6b' },
-      { x: C.W * 0.7, y: C.H - 80, dir: 'up',    trail: [], color: '#4ecdc4' },
+      { x: C.W * 0.3, y: 80,       dir: 'down',  trail: [], color: '#ff6b6b', alive: true },
+      { x: C.W * 0.7, y: C.H - 80, dir: 'up',    trail: [], color: '#4ecdc4', alive: true },
     ],
     scores: [0, 0], phase: 'waiting', winner: null,
   };
 }
 
 function launch(state) {
-  state.players[0].x = C.W * 0.3; state.players[0].y = 80;       state.players[0].dir = 'down'; state.players[0].trail = [];
-  state.players[1].x = C.W * 0.7; state.players[1].y = C.H - 80; state.players[1].dir = 'up';   state.players[1].trail = [];
+  state.players[0].x = C.W * 0.3; state.players[0].y = 80;       state.players[0].dir = 'down';  state.players[0].trail = []; state.players[0].alive = true;
+  state.players[1].x = C.W * 0.7; state.players[1].y = C.H - 80; state.players[1].dir = 'up';    state.players[1].trail = []; state.players[1].alive = true;
 }
 
 function tick(state) {
   if (state.phase !== 'playing') return null;
 
+  // ── Move both players and record trail ───────────────────
   for (let i = 0; i < 2; i++) {
     const p = state.players[i];
-    // Add current position to trail
+    if (!p.alive) continue;
+
+    // Record current head position into trail BEFORE moving
     p.trail.push({ x: p.x, y: p.y });
+
+    // Cap trail length to avoid unbounded memory growth
+    if (p.trail.length > 2000) p.trail.shift();
 
     // Move
     if (p.dir === 'up')    p.y -= C.SPEED;
@@ -37,45 +44,66 @@ function tick(state) {
     if (p.dir === 'left')  p.x -= C.SPEED;
     if (p.dir === 'right') p.x += C.SPEED;
 
-    // Check Wall Collision
-    if (p.x < 0 || p.x > C.W || p.y < 0 || p.y > C.H) return 1 - i; // Opponent scores
-  }
-
-  // Check Self/Opponent Trail Collision
-  for (let i = 0; i < 2; i++) {
-    const p = state.players[i];
-    for (let j = 0; j < 2; j++) {
-      const target = state.players[j];
-      // Check collision with trail
-      // To prevent colliding with the very last point added (ourselves):
-      const limit = (i === j) ? target.trail.length - 10 : target.trail.length;
-      for (let k = 0; k < limit; k += 2) { // Optimize: check every 2nd point
-        const dot = target.trail[k];
-        const dist2 = Math.pow(p.x - dot.x, 2) + Math.pow(p.y - dot.y, 2);
-        if (dist2 < 20) return 1 - i; // Collision! Opponent scores
-      }
+    // Wall collision
+    if (p.x < 0 || p.x > C.W || p.y < 0 || p.y > C.H) {
+      p.alive = false;
     }
   }
+
+  // ── Trail collision detection ─────────────────────────────
+  for (let i = 0; i < 2; i++) {
+    const p = state.players[i];
+    if (!p.alive) continue;
+
+    for (let j = 0; j < 2; j++) {
+      const target = state.players[j];
+      // For self-collision, skip the most recent GRACE_FRAMES points
+      const limit = (i === j)
+        ? Math.max(0, target.trail.length - C.GRACE_FRAMES)
+        : target.trail.length;
+
+      for (let k = 0; k < limit; k++) {
+        const dot = target.trail[k];
+        const dx = p.x - dot.x;
+        const dy = p.y - dot.y;
+        if (dx * dx + dy * dy < C.PLAYER_R * C.PLAYER_R) {
+          p.alive = false;
+          break;
+        }
+      }
+      if (!p.alive) break;
+    }
+  }
+
+  // ── Determine result ──────────────────────────────────────
+  const [a0, a1] = [state.players[0].alive, state.players[1].alive];
+
+  if (!a0 && !a1) return -1; // tie — nobody scores (handle in RoomManager)
+  if (!a0) return 1;  // P1 wins
+  if (!a1) return 0;  // P0 wins
 
   return null;
 }
 
 const DIRS = ['up', 'right', 'down', 'left'];
-function move(state, idx, x, y) {
-  const p = state.players[idx];
-  
-  // Anti-jitter: only turn if it is a "new" interaction or after a short delay
-  const now = Date.now();
-  if (p.lastTurn && now - p.lastTurn < 100) return; 
 
-  let curIdx = DIRS.indexOf(p.dir);
-  if (x < C.W / 2) {
-    curIdx = (curIdx + 3) % 4; // CCW
-  } else {
-    curIdx = (curIdx + 1) % 4; // CW
-  }
-  
-  p.dir = DIRS[curIdx];
+function move(state, idx, x, _y) {
+  const p = state.players[idx];
+
+  // Anti-jitter: only turn if enough time has passed
+  const now = Date.now();
+  if (p.lastTurn && now - p.lastTurn < 120) return;
+
+  const curIdx = DIRS.indexOf(p.dir);
+  // Tap left half → turn CCW (left), tap right half → turn CW (right)
+  const newIdx = x < C.W / 2
+    ? (curIdx + 3) % 4  // CCW
+    : (curIdx + 1) % 4; // CW
+
+  // Prevent 180° reversal (can't go directly opposite)
+  if (Math.abs(newIdx - curIdx) === 2) return;
+
+  p.dir = DIRS[newIdx];
   p.lastTurn = now;
 }
 

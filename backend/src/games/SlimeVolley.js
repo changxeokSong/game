@@ -5,48 +5,80 @@ const C = Object.freeze({
   W: 272, H: 480,
   BR: 12,     // ball radius
   SR: 30,     // slime radius
-  G: 0.25,    // gravity
-  JUMP: -7,   // jump strength
+  G: 0.25,    // gravity (downward = positive y)
+  JUMP: 7,    // jump speed magnitude (applied upward = -vy)
   MAXSPD: 10,
   WIN: 7,
+  NET_W: 40,  // half-width of net at center
+  NET_X: 272 / 2, // net center x
 });
 
 function createState() {
   return {
-    ball: { x: C.W / 2, y: 100, vx: 0, vy: 0 },
+    ball: { x: C.W / 2, y: C.H - 150, vx: 0, vy: 0 },
     slimes: [
-      { x: C.W / 2, y: 50,      vx: 0, vy: 0, tx: C.W / 2, color: '#ff6b6b' },
-      { x: C.W / 2, y: C.H - 50, vx: 0, vy: 0, tx: C.W / 2, color: '#4ecdc4' },
+      // P0 = top half (y increases downward), rests near y=0 ceiling
+      { x: C.W / 2, y: C.SR,        vx: 0, vy: 0, tx: C.W / 2, color: '#ff6b6b', onGround: true },
+      // P1 = bottom half, rests near y=H floor
+      { x: C.W / 2, y: C.H - C.SR,  vx: 0, vy: 0, tx: C.W / 2, color: '#4ecdc4', onGround: true },
     ],
     scores: [0, 0], phase: 'waiting', winner: null,
   };
 }
 
 function launch(state) {
+  // Launch toward the bottom half (P1 side) or top half randomly
   const side = Math.random() < 0.5 ? 1 : 0;
-  state.ball = { x: C.W / 2, y: side === 0 ? 150 : C.H - 150, vx: (Math.random()-0.5)*4, vy: 0 };
+  const targetY = side === 0 ? C.H * 0.3 : C.H * 0.7;
+  state.ball = {
+    x: C.W / 2,
+    y: targetY,
+    vx: (Math.random() - 0.5) * 4,
+    vy: 0,
+  };
+  // Reset slimes to rest positions
+  state.slimes[0].vy = 0; state.slimes[0].y = C.SR; state.slimes[0].onGround = true;
+  state.slimes[1].vy = 0; state.slimes[1].y = C.H - C.SR; state.slimes[1].onGround = true;
 }
 
 function tick(state) {
   if (state.phase !== 'playing') return null;
 
   const b = state.ball;
+
+  // ── Ball physics ──────────────────────────────────────────
   b.vy += C.G;
-  b.x += b.vx; b.y += b.vy;
+  b.x  += b.vx;
+  b.y  += b.vy;
 
   // Wall collisions
-  if (b.x < C.BR) { b.x = C.BR; b.vx *= -0.8; }
-  if (b.x > C.W - C.BR) { b.x = C.W - C.BR; b.vx *= -0.8; }
+  if (b.x < C.BR)           { b.x = C.BR;          b.vx *= -0.85; }
+  if (b.x > C.W - C.BR)     { b.x = C.W - C.BR;    b.vx *= -0.85; }
 
-  // Goal Check (Ball touches floor/ceiling)
-  if (b.y < -C.BR) return 1; // P1 scores
-  if (b.y > C.H + C.BR) return 0; // P0 scores
+  // Goal check (ball exits top or bottom)
+  if (b.y < -C.BR)           return 1; // P1 (bottom) scores — ball went past top
+  if (b.y > C.H + C.BR)      return 0; // P0 (top)    scores — ball went past bottom
 
-  // Slime physics
+  // ── Net collision (line at y = H/2) ───────────────────────
+  // Net occupies x: [C.NET_X - C.NET_W, C.NET_X + C.NET_W]
+  const netTop = C.H / 2 - 2;
+  const netBot = C.H / 2 + 2;
+  if (b.y + C.BR > netTop && b.y - C.BR < netBot &&
+      b.x > C.NET_X - C.NET_W && b.x < C.NET_X + C.NET_W) {
+    if (b.vy > 0) {
+      b.vy = -Math.abs(b.vy) * 0.9;
+      b.y  = netTop - C.BR;
+    } else {
+      b.vy =  Math.abs(b.vy) * 0.9;
+      b.y  = netBot + C.BR;
+    }
+  }
+
+  // ── Slime physics ─────────────────────────────────────────
   state.slimes.forEach((s, idx) => {
     const isTop = idx === 0;
-    
-    // Smooth Horizontal Movement
+
+    // Smooth horizontal movement
     const txDiff = s.tx - s.x;
     const maxStep = 12;
     const oldX = s.x;
@@ -54,70 +86,106 @@ function tick(state) {
     else s.x = s.tx;
     s.vx = s.x - oldX;
 
-    // Apply gravity to slimes
-    s.vy += C.G;
-    s.y += s.vy;
+    // Clamp X to own half (keep away from net too)
+    s.x = clamp(s.x, C.SR, C.W - C.SR);
 
-    // Floor/Ceiling constraint for slimes
+    // Apply gravity
+    s.vy += C.G;
+    s.y  += s.vy;
+
+    // Ground/Ceiling constraints
     if (isTop) {
-      if (s.y > C.H/2 - 5) { s.y = C.H/2 - 5; s.vy = 0; }
-      if (s.y < 0) { s.y = 0; s.vy = 0; }
+      // P0 lives in top half — ceiling is y=C.SR (rests here), floor is y=H/2 - C.SR
+      const ceiling = C.SR;
+      const floor   = C.H / 2 - C.SR;
+      if (s.y <= ceiling) {
+        s.y = ceiling;
+        s.vy = 0;
+        s.onGround = true;
+      } else if (s.y >= floor) {
+        s.y = floor;
+        s.vy = 0;
+        s.onGround = false; // can't jump while at center boundary
+      } else {
+        s.onGround = false;
+      }
     } else {
-      if (s.y < C.H/2 + 5) { s.y = C.H/2 + 5; s.vy = 0; }
-      if (s.y > C.H) { s.y = C.H; s.vy = 0; }
+      // P1 lives in bottom half — floor is y=H - C.SR (rests here), ceiling is y=H/2 + C.SR
+      const ceiling = C.H / 2 + C.SR;
+      const floor   = C.H - C.SR;
+      if (s.y >= floor) {
+        s.y = floor;
+        s.vy = 0;
+        s.onGround = true;
+      } else if (s.y <= ceiling) {
+        s.y = ceiling;
+        s.vy = 0;
+        s.onGround = false;
+      } else {
+        s.onGround = false;
+      }
     }
 
-    // Ball-Slime collision (Slime is a semicircle)
-    const dx = b.x - s.x, dy = b.y - s.y;
-    const dist = Math.sqrt(dx*dx + dy*dy);
-    if (dist < C.BR + C.SR) {
-      // Normal vector
-      const nx = dx / dist, ny = dy / dist;
+    // ── Ball-Slime collision ──────────────────────────────────
+    const dx   = b.x - s.x;
+    const dy   = b.y - s.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const minD = C.BR + C.SR;
+    if (dist < minD && dist > 0) {
+      const nx = dx / dist;
+      const ny = dy / dist;
       // Resolve overlap
-      b.x = s.x + nx * (C.BR + C.SR);
-      b.y = s.y + ny * (C.BR + C.SR);
-
-      // Bounce
-      const dot = (b.vx - s.vx) * nx + (b.vy - s.vy) * ny;
-      b.vx = (b.vx - 1.5 * dot * nx) + s.vx;
-      b.vy = (b.vy - 1.5 * dot * ny) + s.vy;
-      
-      // Keep speed in check
-      const speed = Math.sqrt(b.vx*b.vx + b.vy*b.vy);
-      if (speed > C.MAXSPD) { b.vx = b.vx/speed*C.MAXSPD; b.vy = b.vy/speed*C.MAXSPD; }
+      b.x = s.x + nx * minD;
+      b.y = s.y + ny * minD;
+      // Impulse-based bounce
+      const relVx = b.vx - s.vx;
+      const relVy = b.vy - s.vy;
+      const dot   = relVx * nx + relVy * ny;
+      const restitution = 1.3;
+      b.vx -= restitution * dot * nx;
+      b.vy -= restitution * dot * ny;
+      // Speed cap
+      const sp = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
+      if (sp > C.MAXSPD) { b.vx = b.vx / sp * C.MAXSPD; b.vy = b.vy / sp * C.MAXSPD; }
     }
   });
-
-  // Net collision (simple line at center)
-  if (Math.abs(b.y - C.H/2) < C.BR) {
-      if (Math.abs(b.x - C.W/2) < 40) { // Net width
-         b.vy *= -1;
-         b.y = (b.vy > 0) ? C.H/2 + C.BR : C.H/2 - C.BR;
-      }
-  }
 
   return null;
 }
 
+/**
+ * move(state, idx, x, y)
+ * x  → target horizontal position (already in global game coords)
+ * y  → used to detect jump intent
+ *
+ * Jump detection:
+ *   P0 (top slime)    — tapping the bottom portion of the screen (y > H/2) → jump DOWN toward center
+ *   P1 (bottom slime) — tapping the top portion of the screen    (y < H/2) → jump UP   toward center
+ *
+ * The client sends coordinates already flipped by the view transform,
+ * so we treat them as-is in global coordinates.
+ */
 function move(state, idx, x, y) {
-  const s = state.slimes[idx];
+  const s    = state.slimes[idx];
   const isTop = idx === 0;
-  
-  // Horizontal target
+
+  // Horizontal target — constrain to own half
   s.tx = clamp(x, C.SR, C.W - C.SR);
 
-  // Jump if tapping upper/lower area
-  const shouldJump = isTop ? (y < 100) : (y > C.H - 100);
-  if (shouldJump) {
-    // Jump only if on the ground/ceiling (simple check)
-    if (isTop && s.y >= C.H/2 - 10) s.vy = -C.JUMP; // actually jump is UP from middle
-    if (!isTop && s.y >= C.H - 10) s.vy = C.JUMP; // jump is DOWN from bottom? No, UP.
-    
-    // Slime Volley vertical:
-    // P1 (Bottom) jumps UP (-vy)
-    // P0 (Top) jumps DOWN (+vy) relative to their goal? No, they jump TOWARDS the center.
-    if (!isTop && s.y >= C.H - 1) s.vy = C.JUMP; 
-    if (isTop && s.y <= 1) s.vy = -C.JUMP; // Jump down
+  // Jump detection
+  // After client coordinate flip P0 sees flipped coords: their "tap top" = global bottom half (y > H/2)
+  // So for P0: jump when y > H/2, for P1: jump when y < H/2
+  const jumpIntent = isTop ? (y > C.H / 2) : (y < C.H / 2);
+
+  if (jumpIntent && s.onGround) {
+    if (isTop) {
+      // P0 rests at ceiling (y=SR), jumps downward (positive vy) toward net
+      s.vy = +C.JUMP;
+    } else {
+      // P1 rests at floor (y=H-SR), jumps upward (negative vy) toward net
+      s.vy = -C.JUMP;
+    }
+    s.onGround = false;
   }
 }
 
