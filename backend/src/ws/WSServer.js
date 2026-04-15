@@ -78,9 +78,9 @@ class WSServer {
           ts: now(), room: 'lobby', system: true,
         });
       }
-      this._pushUserList();
     }
     this.clients.delete(ws);
+    this._pushUserList();
   }
 
   _pushUserList() {
