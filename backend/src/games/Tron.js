@@ -11,16 +11,16 @@ const C = Object.freeze({
 function createState() {
   return {
     players: [
-      { x: C.W / 2, y: 80,       dir: 'down',  trail: [], color: '#ff6b6b' },
-      { x: C.W / 2, y: C.H - 80, dir: 'up',    trail: [], color: '#4ecdc4' },
+      { x: C.W * 0.3, y: 80,       dir: 'down',  trail: [], color: '#ff6b6b' },
+      { x: C.W * 0.7, y: C.H - 80, dir: 'up',    trail: [], color: '#4ecdc4' },
     ],
     scores: [0, 0], phase: 'waiting', winner: null,
   };
 }
 
 function launch(state) {
-  state.players[0].x = C.W / 2; state.players[0].y = 80;       state.players[0].dir = 'down'; state.players[0].trail = [];
-  state.players[1].x = C.W / 2; state.players[1].y = C.H - 80; state.players[1].dir = 'up';   state.players[1].trail = [];
+  state.players[0].x = C.W * 0.3; state.players[0].y = 80;       state.players[0].dir = 'down'; state.players[0].trail = [];
+  state.players[1].x = C.W * 0.7; state.players[1].y = C.H - 80; state.players[1].dir = 'up';   state.players[1].trail = [];
 }
 
 function tick(state) {

@@ -85,16 +85,24 @@ function tick(state) {
     if (!brick.active) continue;
     if (b.x + C.BR > brick.x && b.x - C.BR < brick.x + C.BW &&
         b.y + C.BR > brick.y && b.y - C.BR < brick.y + C.BH) {
+      
       brick.active = false;
-      b.vy *= -1; // Basic bounce
+      
+      // Determine bounce direction properly
+      const distTop = Math.abs((b.y + C.BR) - brick.y);
+      const distBot = Math.abs((b.y - C.BR) - (brick.y + C.BH));
+      if (distTop < distBot) {
+        b.vy = -Math.abs(b.vy);
+        b.y = brick.y - C.BR;
+      } else {
+        b.vy = Math.abs(b.vy);
+        b.y = brick.y + C.BH + C.BR;
+      }
+
       if (b.lastHit !== -1) {
         state.scores[b.lastHit] += 20;
       }
-      // Check if all bricks are gone
-      if (state.bricks.every(br => !br.active)) {
-         // Win by highest score when cleared
-         // Actually, let's just win immediately if threshold reached
-      }
+      break; // Single brick hit per tick for maximum stability
     }
   }
 

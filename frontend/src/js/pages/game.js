@@ -63,6 +63,17 @@ async function init() {
       gamePhase = 'waiting';
       badgeEl.textContent = isSpectator ? 'WATCHING' : 'WAITING';
       
+      // Fix: Set dimensions from server
+      GAME_W = m.gameW || 272;
+      GAME_H = m.gameH || 480;
+      canvas.width = GAME_W * 2;
+      canvas.height = GAME_H * 2;
+      canvas.style.aspectRatio = `${GAME_W} / ${GAME_H}`;
+      
+      // Re-calculate scale for inputs
+      const rect = canvas.getBoundingClientRect();
+      _scale = rect.width / GAME_W;
+
       if (isSpectator) {
         if (m.playerNames) {
           setPlayerName(0, m.playerNames[0]);
@@ -82,13 +93,13 @@ async function init() {
 
     ws.on('game_state', m => {
       if (state) {
-        state.puck = m.state.puck;
-        state.paddles = m.state.paddles;
+        // Sync everything instead of just puck/paddles
+        Object.assign(state, m.state);
       }
     });
 
     ws.on('game_goal', m => {
-      state.scores = m.scores;
+      if (state) state.scores = m.scores;
       updateScore();
       const iMine = m.scorer === playerIdx;
       showOverlay(iMine ? '⚡ GOAL!' : '😬 GOAL!',
@@ -97,7 +108,7 @@ async function init() {
     });
 
     ws.on('game_resume', m => {
-      state = m.state;
+      if (state) Object.assign(state, m.state);
       gamePhase = 'playing';
       hideOverlay();
     });
