@@ -63,14 +63,20 @@ function tick(state) {
 const DIRS = ['up', 'right', 'down', 'left'];
 function move(state, idx, x, y) {
   const p = state.players[idx];
-  // Controls: Tap left half to rotate CCW, right half to rotate CW
+  
+  // Anti-jitter: only turn if it is a "new" interaction or after a short delay
+  const now = Date.now();
+  if (p.lastTurn && now - p.lastTurn < 100) return; 
+
   let curIdx = DIRS.indexOf(p.dir);
   if (x < C.W / 2) {
     curIdx = (curIdx + 3) % 4; // CCW
   } else {
     curIdx = (curIdx + 1) % 4; // CW
   }
+  
   p.dir = DIRS[curIdx];
+  p.lastTurn = now;
 }
 
 module.exports = { C, createState, launch, tick, move };

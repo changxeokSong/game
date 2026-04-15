@@ -207,8 +207,15 @@ function sendMove(cx, cy) {
   ws.send({ type: 'game_move', x, y });
 }
 
-canvas.addEventListener('mousemove', e => sendMove(e.clientX, e.clientY));
+canvas.addEventListener('mousemove', e => {
+  if (gameId === 'tron') return; // Tron only uses taps
+  sendMove(e.clientX, e.clientY);
+});
+canvas.addEventListener('mousedown', e => {
+  if (gameId === 'tron') sendMove(e.clientX, e.clientY);
+});
 canvas.addEventListener('touchmove', e => {
+  if (gameId === 'tron') return; 
   e.preventDefault();
   sendMove(e.touches[0].clientX, e.touches[0].clientY);
 }, { passive: false });
