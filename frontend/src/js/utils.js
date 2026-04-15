@@ -11,9 +11,9 @@ export const fmtTime = iso => {
 /** Clamp a value between lo and hi */
 export const clamp = (v, lo, hi) => v < lo ? lo : v > hi ? hi : v;
 
-/** Get / set sessionStorage with JSON */
+/** Get / set localStorage with JSON */
 export const session = {
-  get: key => { try { return JSON.parse(sessionStorage.getItem(key)); } catch { return null; } },
-  set: (key, val) => sessionStorage.setItem(key, JSON.stringify(val)),
-  del: key => sessionStorage.removeItem(key),
+  get: key => { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } },
+  set: (key, val) => localStorage.setItem(key, JSON.stringify(val)),
+  del: key => localStorage.removeItem(key),
 };

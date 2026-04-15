@@ -1,8 +1,9 @@
 import { WSClient } from '../ws.js';
+import { session } from '../utils.js';
 import { Chat } from '../components/Chat.js';
 import { setupEasterEgg } from '../easter-egg.js';
 
-const username = sessionStorage.getItem('username');
+const username = session.get('username');
 if (!username) location.replace('/');
 
 const ws = new WSClient();

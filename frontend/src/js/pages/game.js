@@ -1,11 +1,12 @@
 import { WSClient } from '../ws.js';
+import { session } from '../utils.js';
 import { Chat } from '../components/Chat.js';
 
-const username = sessionStorage.getItem('username');
+const username = session.get('username');
 if (!username) location.replace('/');
 
 const params = new URLSearchParams(location.search);
-const gameId = params.get('id') || sessionStorage.getItem('gameId') || 'air-hockey';
+const gameId = params.get('id') || session.get('gameId') || 'air-hockey';
 
 const ws = new WSClient();
 const chat = new Chat('chat-msgs', 'chat-inp', ws);
@@ -135,8 +136,10 @@ function setPlayerName(idx, name) {
 }
 
 function updateScore() {
-  document.getElementById('sc0').textContent = state.scores[0];
-  document.getElementById('sc1').textContent = state.scores[1];
+  const isFlipped = playerIdx === 0;
+  // If flipped, sc0 (me) is bottom, sc1 (opponent) is top
+  document.getElementById(isFlipped ? 'sc1' : 'sc0').textContent = state.scores[0];
+  document.getElementById(isFlipped ? 'sc0' : 'sc1').textContent = state.scores[1];
 }
 
 function showOverlay(title, sub, color, withBtn) {
@@ -162,9 +165,14 @@ function sendMove(cx, cy) {
   const rect = canvas.getBoundingClientRect();
   let x = (cx - rect.left) / _scale;
   let y = (cy - rect.top) / _scale;
-  if (gameId === 'air-hockey' && playerIdx === 1) {
-    x = GAME_W - x; y = GAME_H - y;
+
+  // Universal relative view: If I am P0 (global Top), I am seeing a 180-deg rotated view
+  // so I must flip my inputs back to the global top coordinates.
+  if (playerIdx === 0) {
+    x = GAME_W - x; 
+    y = GAME_H - y;
   }
+
   ws.send({ type: 'game_move', x, y });
 }
 
@@ -178,7 +186,9 @@ canvas.addEventListener('touchmove', e => {
 function draw() {
   requestAnimationFrame(draw);
 
-  if (gameId === 'air-hockey' && playerIdx === 1) {
+  // If local player is P0 (global TOP), rotate 180 deg to see self at BOTTOM
+  const isFlipped = playerIdx === 0;
+  if (isFlipped) {
     ctx.save();
     ctx.translate(GAME_W, GAME_H);
     ctx.rotate(Math.PI);
@@ -191,7 +201,7 @@ function draw() {
     drawWaiting();
   }
 
-  if (gameId === 'air-hockey' && playerIdx === 1) ctx.restore();
+  if (isFlipped) ctx.restore();
 }
 
 function drawAirHockey(s) {

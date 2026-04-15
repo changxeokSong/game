@@ -26,7 +26,7 @@ function launch(state) {
   const a = (Math.random() * 30 - 15) * Math.PI / 180;
   const d = Math.random() < 0.5 ? 1 : -1;
   Object.assign(state.puck, { x: C.W/2, y: C.H/2,
-    vx: Math.sin(a) * 6, vy: d * Math.cos(a) * 6 });
+    vx: Math.sin(a) * 3.5, vy: d * Math.cos(a) * 3.5 });
 }
 
 function tick(state) {

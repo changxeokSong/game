@@ -1,7 +1,8 @@
 import { WSClient } from '../ws.js';
+import { session } from '../utils.js';
 
-const username = sessionStorage.getItem('username');
-const adminToken = sessionStorage.getItem('adminToken');
+const username = session.get('username');
+const adminToken = session.get('adminToken');
 if (!username || !adminToken) location.replace('/');
 
 const ws = new WSClient();
@@ -89,7 +90,10 @@ function renderRankings() {
   const wrap = document.getElementById('rankings-wrap');
   wrap.innerHTML = Object.entries(data.rankings).map(([gid, rows]) => `
     <div class="admin-section">
-      <h3 class="section-label">${esc(gid)}</h3>
+      <div class="section-header">
+        <h3 class="section-label">${esc(gid)}</h3>
+        <button class="btn red sm" onclick="resetRankings('${esc(gid)}')">RESET</button>
+      </div>
       <table class="rank-table card">
         <thead><tr><th>#</th><th>USER</th><th>W</th><th>L</th><th>%</th></tr></thead>
         <tbody>
