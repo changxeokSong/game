@@ -1,33 +1,43 @@
 /* ── Design tokens ──────────────────────────────────────── */
 :root {
   /* Colors */
-  --bg:        #000000; /* Pitch black for better stealth */
-  --surface:   #0a0a0f;
-  --surface-glass: rgba(10, 10, 15, 0.6);
-  --surface2:  #11111a;
-  --border:    #161625;
-  --accent:    #00d4ff;
-  --red:       #ff5555;
-  --teal:      #44ddcc;
-  --gold:      #ffcc00;
-  --text:      #d0d5e0;
-  --sub:       #556688;
-  --sys:       #2a3550;
+  --bg:              #000000;
+  --surface:         #0a0a0f;
+  --surface-glass:   rgba(10, 10, 15, 0.65);
+  --surface2:        #11111a;
+  --border:          #1a1a2e;
+  --accent:          #00d4ff;
+  --red:             #ff5555;
+  --teal:            #44ddcc;
+  --gold:            #ffcc00;
+  --text:            #ccd4e0;
+  --sub:             #4a5a78;
+  --sys:             #2a3550;
 
-  /* Spacing (Compressed for small screens/stealth mode) */
-  --gap-xs:  2px;
-  --gap-sm:  6px;
-  --gap-md:  10px;
-  --gap-lg:  14px;
-  --gap-xl:  20px;
+  /* Spacing */
+  --gap-xs: 2px;
+  --gap-sm: 6px;
+  --gap-md: 10px;
+  --gap-lg: 14px;
+  --gap-xl: 20px;
 
-  /* Misc */
-  --radius:   6px;
+  /* Shape */
+  --radius:    6px;
   --radius-sm: 3px;
-  --shadow-accent: 0 0 16px rgba(0, 212, 255, .1);
-  --transition: 0.2s ease;
-  
-  /* Mobile Viewport Fix */
-  --vh: 1vh;
-  --full-h: calc(var(--vh, 1vh) * 100);
+  --radius-lg: 10px;
+
+  /* Shadows */
+  --shadow-accent: 0 0 20px rgba(0, 212, 255, .12);
+  --shadow-glow:   0 0 40px rgba(0, 212, 255, .18);
+
+  /* Transitions */
+  --transition: 0.18s ease;
+
+  /* ── Page layout widths ─────────────────────────────────
+     All non-admin pages share these widths for visual consistency.
+     game-page     → 272px  (matches canvas logical width)
+     lobby / login → 340px  (comfortable reading width)
+  ─────────────────────────────────────────────────────── */
+  --game-w:  272px;
+  --lobby-w: 340px;
 }

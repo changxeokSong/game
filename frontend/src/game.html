@@ -13,18 +13,18 @@
   <link rel="stylesheet" href="/css/components/overlay.css">
   <link rel="stylesheet" href="/css/pages/game.css">
 </head>
-<body>
+<body class="game-page">
 
   <div class="topbar">
     <button class="btn sm" onclick="goLobby()">← LOBBY</button>
     <div class="score-row">
       <div class="score-item p0">
         <span id="name0" class="p-name">P1</span>
-        <span id="sc0" class="p-score">0</span>
+        <span id="sc0"   class="p-score">0</span>
       </div>
       <div class="score-divider">:</div>
       <div class="score-item p1">
-        <span id="sc1" class="p-score">0</span>
+        <span id="sc1"   class="p-score">0</span>
         <span id="name1" class="p-name">P2</span>
       </div>
     </div>
@@ -32,26 +32,29 @@
   </div>
 
   <main class="game-layout">
-    <!-- Canvas Area -->
+
+    <!-- Canvas + Overlay -->
     <div id="canvas-wrap" class="canvas-wrap">
       <canvas id="c"></canvas>
       <div id="overlay" class="overlay">
         <div id="ov-title" class="overlay-title"></div>
-        <div id="ov-sub" class="overlay-sub"></div>
+        <div id="ov-sub"   class="overlay-sub"></div>
         <button id="ov-btn" class="btn primary" onclick="requestRestart()">RESTART</button>
       </div>
     </div>
 
-    <!-- Chat Area -->
+    <!-- In-game Chat (same 272px width as canvas) -->
     <section class="game-chat-section">
-      <div class="chat-container card">
+      <div class="chat-container">
         <div id="chat-msgs" class="chat-msgs"></div>
         <div class="chat-input-row">
-          <input id="chat-inp" class="inp" type="text" maxlength="200" placeholder="메시지…" autocomplete="off">
+          <input id="chat-inp" class="inp" type="text" maxlength="200"
+                 placeholder="메시지…" autocomplete="off">
           <button id="chat-btn" class="btn primary sm">SEND</button>
         </div>
       </div>
     </section>
+
   </main>
 
   <script type="module" src="/js/pages/game.js"></script>

@@ -1,79 +1,75 @@
+/* ═══════════════════════════════════════════════════════════
+   index.css  —  Login / landing page
+   Card constrained to --lobby-w (340px), vertically centered.
+═══════════════════════════════════════════════════════════ */
+
 .login-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display:         flex;
+  flex-direction:  column;
+  align-items:     center;
   justify-content: center;
-  min-height: 100vh;
-  gap: 20px;
-  padding: 16px;
-  background: var(--bg);
+  min-height:      100vh;
+  gap:             22px;
+  padding:         20px 16px;
+  background:      var(--bg);
 }
 
-.logo-box {
-  text-align: center;
-}
+/* ── Logo / title ────────────────────────────────────────── */
+.logo-box { text-align: center; }
 
 .logo-main {
-  font-size: 2.2rem;
+  font-size:   2rem;
   font-weight: 900;
-  color: var(--accent);
-  text-shadow: 0 0 24px rgba(0, 212, 255, 0.4);
-  letter-spacing: 0.15em;
+  color:       var(--accent);
+  text-shadow: 0 0 28px rgba(0, 212, 255, 0.45);
+  letter-spacing: 0.18em;
 }
 
 .logo-sub {
-  font-size: 0.75rem;
-  color: var(--sub);
-  margin-top: -6px;
-  letter-spacing: 0.2em;
-  opacity: 0.8;
+  font-size:      0.68rem;
+  color:          var(--sub);
+  margin-top:     -4px;
+  letter-spacing: 0.22em;
+  opacity:        0.75;
 }
 
+/* ── Login card ──────────────────────────────────────────── */
 .login-card {
-  width: 100%;
-  max-width: 340px;
-  display: flex;
+  width:          100%;
+  max-width:      var(--lobby-w);   /* 340px — matches lobby width */
+  display:        flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 24px;
+  gap:            14px;
+  padding:        24px 22px;
 }
 
+/* ── Form elements ───────────────────────────────────────── */
 .form-group {
-  display: flex;
+  display:        flex;
   flex-direction: column;
-  gap: 8px;
+  gap:            7px;
 }
 
 .form-group label {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--sub);
-  letter-spacing: 0.1em;
+  font-size:      0.65rem;
+  font-weight:    800;
+  color:          var(--sub);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
-.inp {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  padding: 12px 14px;
-  font-size: 1rem;
-  outline: none;
-  transition: border-color var(--transition);
-}
+/* .inp is defined in card.css — no overrides needed here */
 
-.inp:focus {
-  border-color: var(--accent);
-}
-
+/* ── Error / hint text ───────────────────────────────────── */
 .err-msg {
-  color: var(--red);
-  font-size: 0.75rem;
+  color:      var(--red);
+  font-size:  0.73rem;
   min-height: 1.2em;
 }
 
 .hint {
-  font-size: 0.65rem;
-  color: var(--sys);
+  font-size:  0.62rem;
+  color:      var(--sys);
   text-align: center;
+  opacity:    0.8;
 }

@@ -1,37 +1,57 @@
+/* ═══════════════════════════════════════════════════════════
+   topbar.css  —  Navigation bar (all pages)
+   Full-width, fixed height. Content inside has a max-width
+   matching the widest page layout (lobby-w) so it doesn't
+   stretch across ultra-wide screens.
+═══════════════════════════════════════════════════════════ */
+
 .topbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 10px;
-  background: var(--surface);
+  display:       flex;
+  align-items:   center;
+  gap:           8px;
+  padding:       0 10px;
+  height:        38px;
+  background:    var(--surface);
   border-bottom: 1px solid var(--border);
-  height: 38px;
-  flex-shrink: 0;
+  flex-shrink:   0;
+  /* Make topbar full-width but keep its inner content aligned */
+  width:         100%;
+  box-sizing:    border-box;
 }
 
+/* Logo */
 .topbar .logo {
-  font-size: 0.9rem;
-  font-weight: 900;
-  color: var(--accent);
+  font-size:      0.88rem;
+  font-weight:    900;
+  color:          var(--accent);
   letter-spacing: 0.1em;
+  white-space:    nowrap;
 }
 
+/* Push remaining items to the right */
 .topbar .spacer { flex: 1; }
 
+/* Online badge */
 .topbar .online-badge {
-  background: var(--border);
-  padding: 1px 8px;
+  background:    var(--border);
+  padding:       2px 8px;
   border-radius: 12px;
-  font-size: 0.65rem;
-  color: var(--sub);
-  white-space: nowrap;
+  font-size:     0.62rem;
+  color:         var(--sub);
+  white-space:   nowrap;
+  letter-spacing: 0.04em;
 }
 
-.topbar .online-badge.sm { font-size: 0.6rem; padding: 1px 6px; }
+.topbar .online-badge.sm {
+  font-size: 0.58rem;
+  padding:   1px 6px;
+}
 
-/* In Game Topbar */
+/* ── Score row (game topbar only) ────────────────────────── */
 .score-row {
-  display: flex;
+  display:     flex;
   align-items: center;
-  gap: 10px;
+  gap:         10px;
+  flex:        1;               /* take up remaining topbar space */
+  justify-content: center;      /* center the score in the topbar */
 }
