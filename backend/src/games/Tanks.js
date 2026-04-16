@@ -5,8 +5,8 @@ const C = Object.freeze({
   W: 272, H: 480,
   TR: 18,      // tank radius
   BR: 4,       // bullet radius
-  SPD: 3,
-  BSPD: 7,     // bullet speed
+  SPD: 6.4,
+  BSPD: 15,     // bullet speed
   RELOAD: 900, // reload ms
   BOUNCES: 3,  // max bounces before bullet disappears
   WIN: 3,

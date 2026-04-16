@@ -5,9 +5,9 @@ const C = Object.freeze({
   W: 272, H: 480,
   BR: 12,     // ball radius
   SR: 30,     // slime radius
-  G: 0.25,    // gravity (downward = positive y)
-  JUMP: 7,    // jump speed magnitude (applied upward = -vy)
-  MAXSPD: 10,
+  G: 1.13,    // gravity (downward = positive y)
+  JUMP: 15,    // jump speed magnitude (applied upward = -vy)
+  MAXSPD: 21.3,
   WIN: 7,
   NET_W: 40,  // half-width of net at center
   NET_X: 272 / 2, // net center x
@@ -33,7 +33,7 @@ function launch(state) {
   state.ball = {
     x: C.W / 2,
     y: targetY,
-    vx: (Math.random() - 0.5) * 4,
+    vx: (Math.random() - 0.5) * 8.5,
     vy: 0,
   };
   // Reset slimes to rest positions
@@ -80,7 +80,7 @@ function tick(state) {
 
     // Smooth horizontal movement
     const txDiff = s.tx - s.x;
-    const maxStep = 12;
+    const maxStep = 25.5;
     const oldX = s.x;
     if (Math.abs(txDiff) > maxStep) s.x += Math.sign(txDiff) * maxStep;
     else s.x = s.tx;

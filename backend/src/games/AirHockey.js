@@ -6,8 +6,8 @@ const C = Object.freeze({
   W: 272, H: 480,
   PR: 14,    // puck radius
   PAR: 28,   // paddle radius
-  MAXSPD: 14,
-  FRIC: 0.99,
+  MAXSPD: 30,
+  FRIC: 0.98,
   GW: 120,   // goal width
   WIN: 7,
   get GX() { return (this.W - this.GW) / 2; },
@@ -28,7 +28,7 @@ function launch(state) {
   const a = (Math.random() * 40 - 20) * Math.PI / 180;
   const d = Math.random() < 0.5 ? 1 : -1;
   Object.assign(state.puck, { x: C.W/2, y: C.H/2,
-    vx: Math.sin(a) * 3, vy: d * Math.cos(a) * 3 });
+    vx: Math.sin(a) * 6.4, vy: d * Math.cos(a) * 6.4 });
   
   // Sync targets on launch
   state.paddles.forEach(p => { p.tx = p.x; p.ty = p.y; p.vx = 0; p.vy = 0; });
@@ -47,7 +47,7 @@ function tick(state) {
     const txDiff = pad.tx - pad.x;
     const tyDiff = pad.ty - pad.y;
     const dist = Math.sqrt(txDiff * txDiff + tyDiff * tyDiff);
-    const maxStep = 25; // Smoothing speed limit
+    const maxStep = 53; // Smoothing speed limit
 
     const oldX = pad.x;
     const oldY = pad.y;

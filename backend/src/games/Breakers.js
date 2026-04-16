@@ -6,7 +6,7 @@ const C = Object.freeze({
   BR: 8,        // ball radius
   PW: 72, PH: 12,
   BW: 38, BH: 13,  // brick width/height
-  MAXSPD: 12,
+  MAXSPD: 25.5,
   WIN: 10,      // first to destroy 10 bricks wins (score-based)
   ROWS: 4, COLS: 6,
 });
@@ -52,7 +52,7 @@ function launch(state) {
   const d = Math.random() < 0.5 ? 1 : -1;
   Object.assign(state.puck, {
     x: C.W / 2, y: C.H / 2 + 50 * d,
-    vx: Math.sin(a) * 4, vy: d * Math.cos(a) * 4,
+    vx: Math.sin(a) * 8.5, vy: d * Math.cos(a) * 8.5,
     lastHit: -1,
   });
 }
@@ -64,7 +64,7 @@ function tick(state) {
   // ── Paddle smoothing ──────────────────────────────────────
   state.paddles.forEach(p => {
     const dx = p.tx - p.x;
-    const maxStep = 18;
+    const maxStep = 38;
     if (Math.abs(dx) > maxStep) p.x += Math.sign(dx) * maxStep;
     else p.x = p.tx;
   });
@@ -95,7 +95,7 @@ function tick(state) {
 
     if (withinX && withinY) {
       b.y = isTop ? p.y + hh + C.BR : p.y - hh - C.BR;
-      const sp    = Math.min(Math.sqrt(b.vx ** 2 + b.vy ** 2) + 0.2, C.MAXSPD);
+      const sp    = Math.min(Math.sqrt(b.vx ** 2 + b.vy ** 2) + 0.4, C.MAXSPD);
       const angle = (b.x - p.x) / hw * 60 * Math.PI / 180;
       b.vx  = Math.sin(angle) * sp;
       b.vy  = (isTop ? 1 : -1) * Math.cos(angle) * sp;

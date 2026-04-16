@@ -3,7 +3,7 @@
 /** Neon Tron — 272 × 480 portrait */
 const C = Object.freeze({
   W: 272, H: 480,
-  SPEED: 2.5,
+  SPEED: 5.3,
   PLAYER_R: 5,    // head collision radius
   WIN: 3,
   GRACE_FRAMES: 8, // ignore own trail for this many recent points

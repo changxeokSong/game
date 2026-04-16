@@ -7,7 +7,7 @@ const C = Object.freeze({
   BR: 10,   // ball radius
   PW: 72,   // paddle width
   PH: 12,   // paddle height
-  MAXSPD: 14,
+  MAXSPD: 30,
   WIN: 7,
 });
 
@@ -26,7 +26,7 @@ function launch(state) {
   const a = (Math.random() * 30 - 15) * Math.PI / 180;
   const d = Math.random() < 0.5 ? 1 : -1;
   Object.assign(state.puck, { x: C.W/2, y: C.H/2,
-    vx: Math.sin(a) * 3.5, vy: d * Math.cos(a) * 3.5 });
+    vx: Math.sin(a) * 7.5, vy: d * Math.cos(a) * 7.5 });
 }
 
 function tick(state) {
@@ -36,7 +36,7 @@ function tick(state) {
   // Smooth Paddles
   state.paddles.forEach(p => {
     const dx = p.tx - p.x;
-    const maxStep = 18;
+    const maxStep = 38;
     if (Math.abs(dx) > maxStep) p.x += Math.sign(dx) * maxStep;
     else p.x = p.tx;
   });
@@ -55,7 +55,7 @@ function tick(state) {
   if (b.vy < 0 && b.y - C.BR < p0.y + hh && b.y > p0.y - hh
       && b.x >= p0.x - hw - C.BR && b.x <= p0.x + hw + C.BR) {
     b.y = p0.y + hh + C.BR;
-    const sp = Math.min(Math.sqrt(b.vx*b.vx + b.vy*b.vy) + 0.4, C.MAXSPD);
+    const sp = Math.min(Math.sqrt(b.vx*b.vx + b.vy*b.vy) + 0.85, C.MAXSPD);
     const a2 = ((b.x - p0.x) / hw) * 60 * Math.PI / 180;
     b.vx = Math.sin(a2) * sp;  b.vy = Math.cos(a2) * sp;
   }
@@ -63,7 +63,7 @@ function tick(state) {
   if (b.vy > 0 && b.y + C.BR > p1.y - hh && b.y < p1.y + hh
       && b.x >= p1.x - hw - C.BR && b.x <= p1.x + hw + C.BR) {
     b.y = p1.y - hh - C.BR;
-    const sp = Math.min(Math.sqrt(b.vx*b.vx + b.vy*b.vy) + 0.4, C.MAXSPD);
+    const sp = Math.min(Math.sqrt(b.vx*b.vx + b.vy*b.vy) + 0.85, C.MAXSPD);
     const a2 = ((b.x - p1.x) / hw) * 60 * Math.PI / 180;
     b.vx = Math.sin(a2) * sp;  b.vy = -Math.cos(a2) * sp;
   }
