@@ -53,7 +53,7 @@ function launch(state) {
   Object.assign(state.puck, {
     x: C.W / 2, y: C.H / 2 + 50 * d,
     vx: Math.sin(a) * 8.5, vy: d * Math.cos(a) * 8.5,
-    lastHit: -1,
+    lastHit: -1,  // ← reset so previous round's hitter gets no credit
   });
 }
 
@@ -71,6 +71,12 @@ function tick(state) {
 
   b.x += b.vx;
   b.y += b.vy;
+
+  // ── Dead-ball guard: ensure ball always has enough vertical speed ────
+  const MIN_VY = 2.0;
+  if (Math.abs(b.vy) < MIN_VY) {
+    b.vy = (b.vy >= 0 ? 1 : -1) * MIN_VY;
+  }
 
   // ── Wall collisions ───────────────────────────────────────
   if (b.x - C.BR < 0)    { b.x = C.BR;       b.vx =  Math.abs(b.vx); }

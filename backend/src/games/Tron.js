@@ -6,7 +6,7 @@ const C = Object.freeze({
   SPEED: 5.3,
   PLAYER_R: 5,    // head collision radius
   WIN: 3,
-  GRACE_FRAMES: 8, // ignore own trail for this many recent points
+  GRACE_FRAMES: 15, // ignore own trail for this many recent points
 });
 
 function createState() {
@@ -95,13 +95,14 @@ function move(state, idx, x, _y) {
   if (p.lastTurn && now - p.lastTurn < 120) return;
 
   const curIdx = DIRS.indexOf(p.dir);
-  // Tap left half → turn CCW (left), tap right half → turn CW (right)
-  const newIdx = x < C.W / 2
+  // P0's x is flipped by the frontend, so global x > W/2 means physical left tap
+  const isPhysicalLeft = idx === 0 ? x >= C.W / 2 : x < C.W / 2;
+  const newIdx = isPhysicalLeft
     ? (curIdx + 3) % 4  // CCW
     : (curIdx + 1) % 4; // CW
 
-  // Prevent 180° reversal (can't go directly opposite)
-  if (Math.abs(newIdx - curIdx) === 2) return;
+  // Prevent 180° reversal — use circular modular distance (wrap-around safe)
+  if ((4 + newIdx - curIdx) % 4 === 2) return;
 
   p.dir = DIRS[newIdx];
   p.lastTurn = now;

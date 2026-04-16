@@ -29,12 +29,13 @@ function createState() {
 function launch(state) {
   // Launch toward the bottom half (P1 side) or top half randomly
   const side = Math.random() < 0.5 ? 1 : 0;
-  const targetY = side === 0 ? C.H * 0.3 : C.H * 0.7;
+  // Serve slightly near the net to give reaction time
+  const targetY = side === 1 ? C.H / 2 + 30 : C.H / 2 - 30;
   state.ball = {
     x: C.W / 2,
     y: targetY,
     vx: (Math.random() - 0.5) * 8.5,
-    vy: 0,
+    vy: side === 1 ? -9 : 9, // Toss vertically to form a nice arc against local gravity
   };
   // Reset slimes to rest positions
   state.slimes[0].vy = 0; state.slimes[0].y = C.SR; state.slimes[0].onGround = true;
@@ -47,7 +48,9 @@ function tick(state) {
   const b = state.ball;
 
   // ── Ball physics ──────────────────────────────────────────
-  b.vy += C.G;
+  // Symmetrical Gravity based on which half the ball is in
+  const ballGravityDir = b.y > C.H / 2 ? 1 : -1;
+  b.vy += C.G * ballGravityDir;
   b.x  += b.vx;
   b.y  += b.vy;
 
@@ -89,8 +92,8 @@ function tick(state) {
     // Clamp X to own half (keep away from net too)
     s.x = clamp(s.x, C.SR, C.W - C.SR);
 
-    // Apply gravity
-    s.vy += C.G;
+    // Apply gravity (Symmetrical: P0 falls "up" to ceiling, P1 falls "down" to floor)
+    s.vy += isTop ? -C.G : C.G;
     s.y  += s.vy;
 
     // Ground/Ceiling constraints
@@ -147,6 +150,9 @@ function tick(state) {
       // Speed cap
       const sp = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
       if (sp > C.MAXSPD) { b.vx = b.vx / sp * C.MAXSPD; b.vy = b.vy / sp * C.MAXSPD; }
+
+      // Prevent wall escape after collision (slime near wall can push ball out)
+      b.x = clamp(b.x, C.BR, C.W - C.BR);
     }
   });
 

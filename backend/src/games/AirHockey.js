@@ -29,9 +29,14 @@ function launch(state) {
   const d = Math.random() < 0.5 ? 1 : -1;
   Object.assign(state.puck, { x: C.W/2, y: C.H/2,
     vx: Math.sin(a) * 6.4, vy: d * Math.cos(a) * 6.4 });
-  
-  // Sync targets on launch
-  state.paddles.forEach(p => { p.tx = p.x; p.ty = p.y; p.vx = 0; p.vy = 0; });
+
+  // Reset paddles to start positions each round
+  const starts = [{ x: C.W/2, y: 60 }, { x: C.W/2, y: C.H - 60 }];
+  state.paddles.forEach((p, i) => {
+    p.x = p.tx = starts[i].x;
+    p.y = p.ty = starts[i].y;
+    p.vx = 0;  p.vy = 0;
+  });
 }
 
 /**
@@ -110,8 +115,11 @@ function tick(state) {
 
 function move(state, idx, x, y) {
   const pad = state.paddles[idx];
-  pad.tx = x;
-  pad.ty = y;
+  // Constrain target to own half so paddle can never cross center
+  const minY = idx === 0 ? C.PAR           : C.H / 2 + C.PAR;
+  const maxY = idx === 0 ? C.H / 2 - C.PAR : C.H - C.PAR;
+  pad.tx = clamp(x, C.PAR, C.W - C.PAR);
+  pad.ty = clamp(y, minY, maxY);
 }
 
 module.exports = { C, createState, launch, tick, move };

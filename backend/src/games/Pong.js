@@ -7,7 +7,7 @@ const C = Object.freeze({
   BR: 10,   // ball radius
   PW: 72,   // paddle width
   PH: 12,   // paddle height
-  MAXSPD: 30,
+  MAXSPD: 18,
   WIN: 7,
 });
 
@@ -57,7 +57,7 @@ function tick(state) {
     b.y = p0.y + hh + C.BR;
     const sp = Math.min(Math.sqrt(b.vx*b.vx + b.vy*b.vy) + 0.85, C.MAXSPD);
     const a2 = ((b.x - p0.x) / hw) * 60 * Math.PI / 180;
-    b.vx = Math.sin(a2) * sp;  b.vy = Math.cos(a2) * sp;
+    b.vx = Math.sin(a2) * sp;  b.vy = Math.abs(Math.cos(a2) * sp); // always downward
   }
   // Bottom paddle
   if (b.vy > 0 && b.y + C.BR > p1.y - hh && b.y < p1.y + hh
@@ -65,7 +65,7 @@ function tick(state) {
     b.y = p1.y - hh - C.BR;
     const sp = Math.min(Math.sqrt(b.vx*b.vx + b.vy*b.vy) + 0.85, C.MAXSPD);
     const a2 = ((b.x - p1.x) / hw) * 60 * Math.PI / 180;
-    b.vx = Math.sin(a2) * sp;  b.vy = -Math.cos(a2) * sp;
+    b.vx = Math.sin(a2) * sp;  b.vy = -Math.abs(Math.cos(a2) * sp); // always upward
   }
 
   return null;
